@@ -1,5 +1,14 @@
 # Thay đổi
 
+## 4.0.1 — nhánh ghi chú từ bản 696fe10 được xác nhận
+
+- Dùng lại nguyên engine v4.0.0; chỉ catalogue và nhãn phiên bản/số lượng đổi. Không kế thừa thay đổi media của 4.1.0.
+- Bỏ 10 mẫu Dịu dàng, thêm 50 mẫu (35 trêu đùa/hài hước), tổng 94 mẫu. Dòng đầu t.me/tomqtx1111.
+- Giữ nền/khung/asset và tham số aura-frame; không sửa đè runtime đã phát hành.
+- 41 test, có đối chiếu engine nguyên vẹn. Video thư viện 60s chưa được xác nhận; người dùng báo trần đăng thực tế 10s.
+- Bản 4.1.0 được lưu riêng ở repo locket_cuios_10s_6mb.
+
+
 ## 4.1.0 — quay 60s, nhập 10s/6 MiB
 
 - Tách ngữ cảnh recording/upload/trim và trần byte nhập; giữ kiểu dữ liệu, đơn vị, codec và trường chưa rõ nghĩa.

@@ -4,6 +4,7 @@ Authoring only: Pillow is required here, never in the proxy runtime.
 """
 import json
 import math
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
@@ -78,11 +79,12 @@ def widget(theme, colors):
     gradient.save(ASSETS / f"widget-{theme}.png",optimize=True)
 
 
-for name, colors in PALETTES.items():
-    backdrop(name, colors)
-widget("aura",("#B4A0FF","#FF8DC2"))
-widget("gold",("#FFF0AE","#D79D3E"))
-widget("rose",("#FFD2E6","#CF75A4"))
+if "--preview-only" not in sys.argv:
+    for name, colors in PALETTES.items():
+        backdrop(name, colors)
+    widget("aura",("#B4A0FF","#FF8DC2"))
+    widget("gold",("#FFF0AE","#D79D3E"))
+    widget("rose",("#FFD2E6","#CF75A4"))
 
 catalogue = json.loads((ROOT / "content/captions.json").read_text())
 font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
@@ -93,7 +95,7 @@ cards = [(group,index,item) for group in catalogue for index,item in enumerate(g
 columns, width, height = 3, 480, 108
 sheet = Image.new("RGB",(columns*width+48,math.ceil(len(cards)/columns)*height+100),"#10131D")
 draw = ImageDraw.Draw(sheet)
-draw.text((24,18),"Cuios • 4 ghi chú thương hiệu + 50 ghi chú mới",font=title,fill="#FFFFFF")
+draw.text((24,18),f"Cuios • {len(cards)} ghi chú • Thêm 50 câu mới",font=title,fill="#FFFFFF")
 for n,(group,index,item) in enumerate(cards):
     name = "brand" if group["id"] == "brand" else group["background"]+"_"+str(index%2+1)
     card = Image.open(BACKGROUNDS/f"{name}.png").resize((width-16,height-14),Image.Resampling.LANCZOS)
@@ -111,4 +113,4 @@ for n,(group,index,item) in enumerate(cards):
         draw.ellipse((x+87,y+44,x+90,y+47),fill="#3F2B13")
         draw.polygon([(x+93,y+64),(x+104,y+61),(x+102,y+72)],fill="#F18E72")
 sheet.save(ASSETS/"captions-preview.jpg",quality=92)
-print("Built 11 caption backdrops, 3 transparent widget frames and 54-caption preview")
+print(f"Built {len(cards)}-caption preview" + (" only" if "--preview-only" in sys.argv else " and original artwork assets"))

@@ -1,86 +1,535 @@
 [
   {
-    "id": "brand", "section": "Cuios • Bản quyền", "background": "brand",
+    "id": "brand",
+    "section": "Cuios • Bản quyền",
+    "background": "brand",
     "items": [
-      ["certificate", "mua chứng chỉ Cuios.shop", "👑"],
-      ["copyright", "Bản quyền Cuios", "✨"],
-      ["cun", "Cưn🍤", "🍤"],
-      ["tom", "tom11th5", "💛"]
+      [
+        "certificate",
+        "t.me/tomqtx1111",
+        "👑"
+      ],
+      [
+        "copyright",
+        "Bản quyền Cuios",
+        "✨"
+      ],
+      [
+        "cun",
+        "Cưn🍤",
+        "🍤"
+      ],
+      [
+        "tom",
+        "tom11th5",
+        "💛"
+      ]
     ]
   },
   {
-    "id": "love", "section": "Tình yêu", "background": "love",
+    "id": "tease",
+    "section": "Trêu đùa",
+    "background": "tease",
     "items": [
-      ["choose", "Tim tớ chọn cậu rồi", "💗"],
-      ["withyou", "Đi đâu cũng muốn có cậu", "🫶"],
-      ["soft", "Gặp cậu là ngày đẹp", "🌷"],
-      ["little", "Thương cậu thêm một chút", "💕"],
-      ["home", "Bên cậu là thấy nhà", "🏡"],
-      ["hug", "Gửi cậu một cái ôm", "🤍"],
-      ["miss", "Nhớ cậu, không cần lý do", "💌"],
-      ["smile", "Cậu cười là tớ thua", "🥰"],
-      ["wait", "Chừa một chỗ cạnh tớ nhé", "💞"],
-      ["simple", "Thích cậu, thế thôi", "💘"]
+      [
+        "pretend",
+        "Thấy tớ rồi, đừng giả vờ",
+        "😏"
+      ],
+      [
+        "look",
+        "Nhìn gì, thích tớ à?",
+        "👀"
+      ],
+      [
+        "shy",
+        "Thả tim đi, đừng ngại",
+        "💛"
+      ],
+      [
+        "remember",
+        "Xem ảnh hay đang nhớ tớ?",
+        "🤭"
+      ],
+      [
+        "flirt",
+        "Cười gì? Đang thả thính đấy",
+        "🎣"
+      ],
+      [
+        "know",
+        "Tớ xinh, tớ biết rồi",
+        "💅"
+      ],
+      [
+        "selective",
+        "Độc thân có chọn lọc",
+        "😌"
+      ],
+      [
+        "longlook",
+        "Cậu nhìn lâu là tớ ngại",
+        "🙈"
+      ],
+      [
+        "loveplease",
+        "Đã xem thì phải thương",
+        "🥺"
+      ],
+      [
+        "space",
+        "Tim cậu còn chỗ không?",
+        "💘"
+      ],
+      [
+        "fee",
+        "Ảnh miễn phí, nhớ tớ tính tiền",
+        "🤑"
+      ],
+      [
+        "behave",
+        "Đang ngoan, đừng chọc",
+        "😼"
+      ],
+      [
+        "price",
+        "Không chảnh, chỉ hơi đắt giá",
+        "👑"
+      ],
+      [
+        "early",
+        "Chưa yêu mà nhớ hơi nhiều",
+        "🫣"
+      ],
+      [
+        "closer",
+        "Thích thì nhích lại đây",
+        "🫶"
+      ],
+      [
+        "reply",
+        "Không rep là tớ dỗi",
+        "😤"
+      ],
+      [
+        "attention",
+        "Xin vía được cậu để ý",
+        "✨"
+      ],
+      [
+        "order",
+        "Chốt đơn một người thương",
+        "🛒"
+      ],
+      [
+        "secret",
+        "Nhìn vậy thôi, mê cậu lắm",
+        "🤫"
+      ],
+      [
+        "standstill",
+        "Đứng yên, tớ thả thính",
+        "🎯"
+      ],
+      [
+        "cute",
+        "Xinh thế này ai chịu nổi",
+        "😎"
+      ],
+      [
+        "seen",
+        "Xem rồi thì nhớ tớ đi",
+        "👀"
+      ],
+      [
+        "crush",
+        "Đẹp vậy mà vẫn độc thân",
+        "😌"
+      ],
+      [
+        "heart",
+        "Lỡ xem là phải thả tim",
+        "😏"
+      ],
+      [
+        "busy",
+        "Bận đáng yêu, lát nhắn",
+        "💅"
+      ],
+      [
+        "snack",
+        "Không giận, chỉ thiếu trà sữa",
+        "🧋"
+      ],
+      [
+        "signal",
+        "Phát tín hiệu: nhớ bạn",
+        "📡"
+      ],
+      [
+        "sleep",
+        "Online đó, nhưng buồn ngủ",
+        "😴"
+      ],
+      [
+        "model",
+        "Camera thường, người phi thường",
+        "🤳"
+      ],
+      [
+        "notice",
+        "Thông báo: cần được cưng",
+        "📣"
+      ]
     ]
   },
   {
-    "id": "joy", "section": "Vui vẻ", "background": "joy",
+    "id": "humor",
+    "section": "Hài hước",
+    "background": "joy",
     "items": [
-      ["enough", "Hôm nay vui vừa đủ", "🌞"],
-      ["vitamin", "Nạp một chút vitamin cười", "🍊"],
-      ["happy", "Đang bận yêu đời", "🌈"],
-      ["broadcast", "Niềm vui đang phát sóng", "📻"],
-      ["sun", "Mang nắng về nhà", "☀️"],
-      ["luck", "May mắn ghé chơi rồi", "🍀"],
-      ["photo", "Chụp vội một ngày xinh", "📸"],
-      ["weekend", "Cuối tuần nằm trong tim", "🎈"],
-      ["save", "Một ngày đáng lưu lại", "✨"],
-      ["laugh", "Cười lên, ảnh đang đẹp", "😆"]
+      [
+        "wallet",
+        "Ví mỏng, tâm hồn phú hộ",
+        "💸"
+      ],
+      [
+        "deadline",
+        "Deadline dí, tớ vẫn lì",
+        "🫠"
+      ],
+      [
+        "attitude",
+        "Hết tiền nhưng còn thần thái",
+        "😎"
+      ],
+      [
+        "awake",
+        "Dậy rồi, hồn chưa tới",
+        "👻"
+      ],
+      [
+        "natural",
+        "Đẹp tự nhiên, lười tự phát",
+        "🦥"
+      ],
+      [
+        "maintenance",
+        "Não đang bảo trì",
+        "🧠"
+      ],
+      [
+        "eatfirst",
+        "Ăn trước, tính sau",
+        "🍜"
+      ],
+      [
+        "salary",
+        "Lương chưa về, đơn đã tới",
+        "📦"
+      ],
+      [
+        "rest",
+        "Chăm chỉ nghỉ ngơi",
+        "🛌"
+      ],
+      [
+        "hungry",
+        "Bụng đói, miệng vẫn cười",
+        "😋"
+      ],
+      [
+        "sleepy",
+        "Chưa giàu nhưng rất buồn ngủ",
+        "😴"
+      ],
+      [
+        "lag",
+        "Mặt tỉnh, đầu đang lag",
+        "🌀"
+      ],
+      [
+        "subject",
+        "Giỏi nhất môn nằm nghỉ",
+        "🏆"
+      ],
+      [
+        "alarm",
+        "Sống lỗi với báo thức",
+        "⏰"
+      ],
+      [
+        "gossip",
+        "Pin yếu mà vẫn hóng",
+        "🍿"
+      ]
     ]
   },
   {
-    "id": "mood", "section": "Cảm xúc", "background": "mood",
+    "id": "love",
+    "section": "Tình yêu",
+    "background": "love",
     "items": [
-      ["rain", "Hôm nay lòng hơi mưa", "🌧️"],
-      ["quiet", "Cho tớ yên một chút", "🌙"],
-      ["thought", "Có vài điều chưa nói", "💭"],
-      ["slow", "Đang học cách chậm lại", "🍃"],
-      ["hug", "Một cái ôm là đủ", "🫂"],
-      ["tired", "Hết pin, cần được thương", "🪫"],
-      ["okay", "Không ổn cũng không sao", "🤍"],
-      ["hope", "Ngày mai mình thử lại", "🌅"],
-      ["memory", "Có người nằm trong ký ức", "🎞️"],
-      ["feeling", "Chẳng biết gọi tên cảm xúc", "🫧"]
+      [
+        "choose",
+        "Tim tớ chọn cậu rồi",
+        "💗"
+      ],
+      [
+        "withyou",
+        "Đi đâu cũng muốn có cậu",
+        "🫶"
+      ],
+      [
+        "soft",
+        "Gặp cậu là ngày đẹp",
+        "🌷"
+      ],
+      [
+        "little",
+        "Thương cậu thêm một chút",
+        "💕"
+      ],
+      [
+        "home",
+        "Bên cậu là thấy nhà",
+        "🏡"
+      ],
+      [
+        "hug",
+        "Gửi cậu một cái ôm",
+        "🤍"
+      ],
+      [
+        "miss",
+        "Nhớ cậu, không cần lý do",
+        "💌"
+      ],
+      [
+        "smile",
+        "Cậu cười là tớ thua",
+        "🥰"
+      ],
+      [
+        "wait",
+        "Chừa một chỗ cạnh tớ nhé",
+        "💞"
+      ],
+      [
+        "simple",
+        "Thích cậu, thế thôi",
+        "💘"
+      ]
     ]
   },
   {
-    "id": "tease", "section": "Trêu đùa", "background": "tease",
+    "id": "joy",
+    "section": "Vui vẻ",
+    "background": "joy",
     "items": [
-      ["cute", "Xinh thế này ai chịu nổi", "😎"],
-      ["seen", "Xem rồi thì nhớ tớ đi", "👀"],
-      ["crush", "Đẹp vậy mà vẫn độc thân", "😌"],
-      ["heart", "Lỡ xem là phải thả tim", "😏"],
-      ["busy", "Bận đáng yêu, lát nhắn", "💅"],
-      ["snack", "Không giận, chỉ thiếu trà sữa", "🧋"],
-      ["signal", "Phát tín hiệu: nhớ bạn", "📡"],
-      ["sleep", "Online đó, nhưng buồn ngủ", "😴"],
-      ["model", "Camera thường, người phi thường", "🤳"],
-      ["notice", "Thông báo: cần được cưng", "📣"]
+      [
+        "enough",
+        "Hôm nay vui vừa đủ",
+        "🌞"
+      ],
+      [
+        "vitamin",
+        "Nạp một chút vitamin cười",
+        "🍊"
+      ],
+      [
+        "happy",
+        "Đang bận yêu đời",
+        "🌈"
+      ],
+      [
+        "broadcast",
+        "Niềm vui đang phát sóng",
+        "📻"
+      ],
+      [
+        "sun",
+        "Mang nắng về nhà",
+        "☀️"
+      ],
+      [
+        "luck",
+        "May mắn ghé chơi rồi",
+        "🍀"
+      ],
+      [
+        "photo",
+        "Chụp vội một ngày xinh",
+        "📸"
+      ],
+      [
+        "weekend",
+        "Cuối tuần nằm trong tim",
+        "🎈"
+      ],
+      [
+        "save",
+        "Một ngày đáng lưu lại",
+        "✨"
+      ],
+      [
+        "laugh",
+        "Cười lên, ảnh đang đẹp",
+        "😆"
+      ]
     ]
   },
   {
-    "id": "gentle", "section": "Dịu dàng", "background": "gentle",
+    "id": "mood",
+    "section": "Cảm xúc",
+    "background": "mood",
     "items": [
-      ["breathe", "Hít thở rồi mình đi tiếp", "🌿"],
-      ["coffee", "Cà phê ấm, lòng nhẹ hơn", "☕"],
-      ["small", "Gom niềm vui nhỏ mỗi ngày", "🪴"],
-      ["enough", "Mình đã cố gắng đủ rồi", "🌼"],
-      ["kind", "Dịu dàng với mình một chút", "🕊️"],
-      ["now", "Ở đây, ngay lúc này", "🍵"],
-      ["sky", "Ngước lên, trời vẫn xanh", "☁️"],
-      ["rest", "Nghỉ một nhịp cũng được", "🛋️"],
-      ["bloom", "Mỗi người một mùa nở hoa", "🌸"],
-      ["night", "Ngủ ngon, mai mình lại xinh", "🌙"]
+      [
+        "rain",
+        "Hôm nay lòng hơi mưa",
+        "🌧️"
+      ],
+      [
+        "quiet",
+        "Cho tớ yên một chút",
+        "🌙"
+      ],
+      [
+        "thought",
+        "Có vài điều chưa nói",
+        "💭"
+      ],
+      [
+        "slow",
+        "Đang học cách chậm lại",
+        "🍃"
+      ],
+      [
+        "hug",
+        "Một cái ôm là đủ",
+        "🫂"
+      ],
+      [
+        "tired",
+        "Hết pin, cần được thương",
+        "🪫"
+      ],
+      [
+        "okay",
+        "Không ổn cũng không sao",
+        "🤍"
+      ],
+      [
+        "hope",
+        "Ngày mai mình thử lại",
+        "🌅"
+      ],
+      [
+        "memory",
+        "Có người nằm trong ký ức",
+        "🎞️"
+      ],
+      [
+        "feeling",
+        "Chẳng biết gọi tên cảm xúc",
+        "🫧"
+      ]
+    ]
+  },
+  {
+    "id": "friends",
+    "section": "Bạn bè",
+    "background": "love",
+    "items": [
+      [
+        "karma",
+        "Bạn thân, nghiệp ai nấy giữ",
+        "🤝"
+      ],
+      [
+        "stories",
+        "Có bạn là có chuyện kể",
+        "💬"
+      ],
+      [
+        "together",
+        "Đi cùng nhau mới vui",
+        "🎈"
+      ],
+      [
+        "call",
+        "Bạn gọi, tớ có mặt",
+        "🫂"
+      ],
+      [
+        "snacks",
+        "Đồng đội hệ ăn vặt",
+        "🍟"
+      ]
+    ]
+  },
+  {
+    "id": "daily",
+    "section": "Đời thường",
+    "background": "mood",
+    "items": [
+      [
+        "coffee",
+        "Cà phê trước, thế giới sau",
+        "☕"
+      ],
+      [
+        "study",
+        "Học một chút, mơ thật nhiều",
+        "📚"
+      ],
+      [
+        "offwork",
+        "Tan làm là hồi sinh",
+        "🌅"
+      ],
+      [
+        "anywhere",
+        "Đi đâu cũng được, miễn vui",
+        "🛵"
+      ],
+      [
+        "ordinary",
+        "Ngày bình thường, ảnh xinh",
+        "📸"
+      ]
+    ]
+  },
+  {
+    "id": "confidence",
+    "section": "Tự tin · Yêu đời",
+    "background": "tease",
+    "items": [
+      [
+        "filter",
+        "Tự tin là bộ lọc đẹp nhất",
+        "✨"
+      ],
+      [
+        "choice",
+        "Tớ chọn vui, cậu chọn gì?",
+        "🌞"
+      ],
+      [
+        "version",
+        "Phiên bản này hơi đáng yêu",
+        "💖"
+      ],
+      [
+        "myway",
+        "Đẹp theo cách của tớ",
+        "🌷"
+      ],
+      [
+        "imperfect",
+        "Không hoàn hảo, vẫn rất xịn",
+        "🌟"
+      ]
     ]
   }
 ]

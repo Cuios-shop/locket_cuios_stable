@@ -1,8 +1,8 @@
 {
   "name": "locket_cuios_stable",
-  "version": "4.1.0",
+  "version": "4.0.1",
   "private": true,
-  "description": "Locket: mục tiêu quay 60s, nhập video 10s/6 MiB, mic và 54 ghi chú; có chẩn đoán",
+  "description": "Bản kế thừa 696fe10 được người dùng xác nhận: cấu hình 60s/100 MiB, 94 ghi chú Cuios",
   "scripts": {
     "check": "node --check scripts/locket.js",
     "test": "node --test"
