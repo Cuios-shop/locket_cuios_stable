@@ -1,5 +1,11 @@
 # Cuios v4.0.2 · 94 ghi chú, 90 nền riêng
 
+## Bản JS làm rối Protected P1
+
+[Module Protected P1](https://raw.githubusercontent.com/Cuongqtx11/locket_cuios_stable/main/locket_cuios_protected.sgmodule) có cùng engine, giới hạn video và ghi chú của bản này, dùng artifact làm rối riêng. Chỉ bật một module Locket; thử Protected trên máy trước khi quyết định dùng lâu dài.
+
+Đã chạy lại toàn bộ kiểm thử trên bản Protected trong sandbox. Chưa kiểm chứng trên iPhone. **Đây không phải mã hóa chống sao chép tuyệt đối; repo vẫn public và còn file nguồn dễ đọc/lịch sử.** Ghi chú AI/câu tự nhận không tạo khóa xác thực. Xem [PROTECTED.md](PROTECTED.md) và [AI_NOTICE.md](AI_NOTICE.md).
+
 **Repo:** [Cuongqtx11/locket_cuios_stable](https://github.com/Cuongqtx11/locket_cuios_stable).
 
 Giữ xử lý Gold, mic/âm thanh, camera, upload, cache và khung Aura của bản `696fe10` mà người dùng xác nhận hoạt động. Bản này thay phần chọn nền của 90 ghi chú thường. Bốn ghi chú bản quyền giữ nguyên cả nội dung, icon, màu nền và URL ảnh từ v4.0.1.
