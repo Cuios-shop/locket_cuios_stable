@@ -68,7 +68,8 @@ fs.writeFileSync(dest, output);
 const isStable = fs.existsSync(path.join(root, "content/caption_backgrounds.json"));
 const variants = isStable ? {
   "locket_cuios_protected.sgmodule": "locket_cuios_stable.sgmodule",
-  "locket_cuios_protected_no_widget.sgmodule": "locket_cuios_no_widget.sgmodule"
+  "locket_cuios_protected_no_widget.sgmodule": "locket_cuios_no_widget.sgmodule",
+  "locket_cuios_looks_protected.sgmodule": "locket_cuios_looks.sgmodule"
 } : { "locket60s_10s_6mb_protected.sgmodule": "locket60s_10s_6mb.sgmodule" };
 for (const [name, template] of Object.entries(variants)) {
   let text = fs.readFileSync(path.join(root, template), "utf8");

@@ -10,7 +10,7 @@ const release = require("../release.json");
 const protectedRelease = require("../protected-release.json");
 const moduleText = fs.readFileSync(path.join(root, protectedRelease.modules[0]), "utf8");
 const argument = moduleText.match(/argument=([^,\n]+)/)?.[1];
-const cases = ["revenuecat", "firebase"];
+const cases = ["revenuecat", "firebase", "firebase_looks"];
 const results = {};
 for (const kind of cases) {
   let reference;
@@ -20,15 +20,16 @@ for (const kind of cases) {
     for (let i = 0; i < 5; i++) {
       let result, calls = 0;
       const sandbox = {
-        $request: { url: kind === "firebase"
+        $request: { url: kind.startsWith("firebase")
           ? "https://firebaseremoteconfig.googleapis.com/v1/projects/locket-4252a/namespaces/firebase:fetch"
           : "https://api.revenuecat.com/v1/subscribers/cuios-fixture", headers: { "User-Agent": "Locket/fixture" } },
-        $response: { status: 200, headers: {}, body: kind === "firebase"
+        $response: { status: 200, headers: {}, body: kind.startsWith("firebase")
           ? '{"state":"UPDATE","entries":{}}' : '{"subscriber":{"entitlements":{},"subscriptions":{}}}' },
         console: { log() {} },
         $done(value) { calls++; result = JSON.parse(JSON.stringify(value)); }
       };
-      if (argument) sandbox.$argument = argument;
+      if (kind === "firebase_looks") sandbox.$argument = "looks-aura-frame";
+      else if (argument) sandbox.$argument = argument;
       const start = performance.now();
       vm.runInNewContext(code, sandbox, { timeout: 1000, contextCodeGeneration: { strings: false, wasm: false } });
       times.push(Math.round((performance.now() - start) * 10) / 10);

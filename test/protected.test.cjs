@@ -25,7 +25,8 @@ test("protected artifact matches its source release and keeps license notices wi
 
 test("protected modules preserve all original hook patterns and settings", () => {
   for (const filename of protectedRelease.modules) {
-    const original = filename === "locket_cuios_protected_no_widget.sgmodule" ? "locket_cuios_no_widget.sgmodule"
+    const original = filename === "locket_cuios_looks_protected.sgmodule" ? "locket_cuios_looks.sgmodule"
+      : filename === "locket_cuios_protected_no_widget.sgmodule" ? "locket_cuios_no_widget.sgmodule"
       : filename === "locket60s_10s_6mb_protected.sgmodule" ? "locket60s_10s_6mb.sgmodule" : "locket_cuios_stable.sgmodule";
     const plain = fs.readFileSync(path.join(root, original), "utf8");
     const protectedModule = fs.readFileSync(path.join(root, filename), "utf8");

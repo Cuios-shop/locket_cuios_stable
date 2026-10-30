@@ -286,7 +286,7 @@ test("diagnostics expose only fixed schema/flag classifications, never response 
   };
   const result = run({ url: firebase, payload: { entries } });
   const logs = result.logs.join("\n");
-  assert.ok(logs.includes("diag v4.0.3 input schema camera=object camera_roll=object"));
+  assert.ok(logs.includes("diag v4.0.4 input schema camera=object camera_roll=object"));
   assert.ok(logs.includes("overlay_items=array(1)"));
   assert.ok(logs.includes("video_sound_enabled=off microphone_enabled=on"));
   assert.ok(logs.includes("mh_mic_enabled_v16=other"));
@@ -314,7 +314,7 @@ test("widget event is opt in, preserves unknown metadata and keeps asset in this
   const patched = JSON.parse(result.body.entries.widget_frame_event);
   assert.equal(patched.uid, "cuios_gold_frame_v3");
   assert.deepEqual(patched.extra, { keep: true });
-  assert.equal(patched.url, "https://raw.githubusercontent.com/Cuios-shop/locket_cuios_stable/main/assets/widget-gold.png?v=4.0.3");
+  assert.equal(patched.url, "https://raw.githubusercontent.com/Cuios-shop/locket_cuios_stable/main/assets/widget-gold.png?v=4.0.4");
   assert.equal(result.body.entries.video_max_duration, "60.0");
   assert.ok(result.logs.some(line => line.includes("widget=gold-event-experimental")));
   const asset = fs.readFileSync(path.join(root, "assets/widget-gold.png"));
@@ -398,7 +398,7 @@ test("Firebase recognizes only Locket project IDs for mutation and observes othe
 test("Firebase ETag follows patched content, stays stable across repeat fetches and differs by theme", () => {
   const first = run({ url: firebase, payload: { state: "UPDATE", entries: { camera: '{"max_duration":5}' } }, responseHeaders: { etag: '"server-static"' } });
   const second = run({ url: firebase, payload: first.body, responseHeaders: { ETag: '"server-static"' } });
-  assert.match(first.output.headers.etag, /^"cuios-4\.0\.3-/);
+  assert.match(first.output.headers.etag, /^"cuios-4\.0\.4-/);
   assert.notEqual(first.output.headers.etag, '"server-static"');
   assert.equal(first.output.headers.etag, second.output.headers.etag);
   const gold = run({ url: firebase, payload: first.body, argument: "gold-frame" });
@@ -443,7 +443,7 @@ test("NO_CHANGE without complete entries is reported, never fabricated from old 
 test("local status proves runtime execution but never claims native features or activation were verified", () => {
   const store = memoryStore();
   const before = report(store);
-  assert.equal(before.runtime, "4.0.3");
+  assert.equal(before.runtime, "4.0.4");
   assert.deepEqual(before.observed, {});
   assert.equal(before.deviceFeaturesVerified, false);
   assert.equal(before.recipe.seconds, 60);
@@ -531,7 +531,7 @@ test("HTTPS self-check is local and records browser transport separately from ac
     assert.equal(rules.filter(rule => rule.type === "http-request" && rule.pattern.test(url)).length, 1);
     const result = run({ url, requestOnly: true, store });
     assert.equal(result.output.response.status, 200);
-    assert.ok(result.output.response.body.includes("Cuios · HTTPS check v4.0.3"));
+    assert.ok(result.output.response.body.includes("Cuios · HTTPS check v4.0.4"));
   }
   const state = report(store).observed;
   assert.equal(state.https_firebase.action, "https_hook_seen");
@@ -604,14 +604,134 @@ test("posted moments and profile APIs are never rewritten by the new catalogue o
   }
 });
 
-test("the working v4.0.0 engine is identical outside caption styling and release labels", () => {
+test("Looks changes only three filter fields and keeps server catalogues, safety and media", () => {
+  const config = {
+    show_filter_button: false, sheet_enabled: false, allows_custom_filters: false,
+    open_sheet_immediately: false, custom_prompt: "private-user-prompt",
+    sheet_filters: [{ title: { en: "Server group" }, filter_ids: ["server-filter"] }],
+    picker_filters: ["server-filter"], safety: { moderation: true }, daily_limit: 2,
+    model: "server-model", endpoint: "https://example.invalid/server-only"
+  };
+  for (const value of [config, JSON.stringify(config)]) {
+    const options = { url: firebase, payload: { state: "UPDATE", entries: {
+      camera_filter_config: value, untouched: "keep", camera: '{"max_duration":3}'
+    } } };
+    const baseline = run({ ...options, argument: "aura-frame" });
+    const enabled = run({ ...options, argument: "looks-aura-frame" });
+    assert.deepEqual(JSON.parse(enabled.body.entries.camera_filter_config), {
+      ...config, show_filter_button: true, sheet_enabled: true, allows_custom_filters: true
+    });
+    const withoutFilters = body => {
+      const clone = structuredClone(body);
+      delete clone.entries.camera_filter_config;
+      return clone;
+    };
+    assert.deepEqual(withoutFilters(enabled.body), withoutFilters(baseline.body));
+    assert.ok(!enabled.logs.join("\n").includes("private-user-prompt"));
+  }
+});
+
+test("Looks can supply the observed UI flags without fabricating a catalogue or backend", () => {
+  const result = run({ url: firebase, argument: "looks-aura-frame", payload: { entries: {} } });
+  assert.deepEqual(JSON.parse(result.body.entries.camera_filter_config), {
+    show_filter_button: true, sheet_enabled: true, allows_custom_filters: true
+  });
+  assert.equal(JSON.parse(result.body.entries.camera).max_duration, 60);
+  assert.equal(JSON.parse(result.body.entries.camera_roll).max_upload_bytes, 104857600);
+  assert.equal(JSON.parse(result.body.entries.overlay_items).flatMap(group => group.items).length, 94);
+});
+
+test("Looks is opt-in and does not alter filter data in the regular modules", () => {
+  for (const argument of [undefined, "aura-frame", "gold-frame", "looks-aura-frame-extra"]) {
+    const options = { url: firebase, argument, payload: { entries: {} } };
+    assert.equal(Object.hasOwn(run(options).body.entries, "camera_filter_config"), false);
+  }
+  const config = '{ "sheet_enabled": false, "server_field": 1 }';
+  assert.equal(run({ url: firebase, argument: "aura-frame", payload: { entries: {
+    camera_filter_config: config
+  } } }).body.entries.camera_filter_config, config);
+});
+
+test("Looks preserves malformed and incompatible config and reports partial patching", () => {
+  for (const value of ["{broken", "[]", "null", "true", [], null, 7]) {
+    const store = memoryStore();
+    const result = run({ url: firebase, argument: "looks-aura-frame", store,
+      payload: { entries: { camera_filter_config: value } } });
+    assert.deepEqual(result.body.entries.camera_filter_config, value);
+    const data = report(store).observed.firebase;
+    assert.equal(data.action, "partial");
+    assert.ok(data.warnings.includes("camera_filter_config"));
+    assert.equal(data.looks.action, "skipped_schema");
+    assert.equal(data.looks.generationVerified, false);
+  }
+});
+
+test("Looks diagnostics classify flags and counts without saving prompts, models, URLs or IDs", () => {
+  const store = memoryStore();
+  run({ url: firebase, argument: "looks-aura-frame", store, payload: { entries: {
+    camera_filter_config: JSON.stringify({ show_filter_button: false, sheet_enabled: true,
+      allows_custom_filters: "private-flag-value", prompt: "never-save-prompt",
+      model: "never-save-model", endpoint: "https://example.invalid/never-save-url",
+      picker_filters: ["never-save-id"], sheet_filters: [{ private_data: "never-save-data" }] })
+  } } });
+  const details = report(store).observed.firebase.looks;
+  assert.deepEqual(details.inputFlags, {
+    show_filter_button: "off", sheet_enabled: "on", allows_custom_filters: "other"
+  });
+  assert.equal(details.serverConfigPresent, true);
+  assert.equal(details.pickerFilters, 1);
+  assert.equal(details.sheetGroups, 1);
+  assert.equal(details.action, "configuration_patched");
+  assert.equal(details.generationVerified, false);
+  const saved = JSON.stringify([...store.values]);
+  for (const value of ["never-save-", "private-flag-value"]) assert.ok(!saved.includes(value));
+  run({ url: firebase, argument: "aura-frame", store, payload: { entries: {} } });
+  assert.deepEqual(report(store).observed.firebase.looks, {
+    requested: false, action: "not_requested", generationVerified: false
+  });
+});
+
+test("Looks changes the validator only when output changes and is idempotent", () => {
+  const options = { url: firebase, payload: { entries: {} } };
+  const regular = run({ ...options, argument: "aura-frame" });
+  const enabled = run({ ...options, argument: "looks-aura-frame" });
+  const repeated = run({ ...options, argument: "looks-aura-frame", payload: enabled.body });
+  assert.notEqual(enabled.output.headers.etag, regular.output.headers.etag);
+  assert.deepEqual(repeated.body, enabled.body);
+  assert.equal(repeated.output.headers.etag, enabled.output.headers.etag);
+});
+
+test("Looks cannot fabricate NO_CHANGE entries or rewrite other apps, errors or AI endpoints", () => {
+  const options = { url: firebase, argument: "looks-aura-frame", payload: { entries: {} } };
+  for (const overrides of [
+    { payload: { state: "NO_CHANGE" } }, { status: 403 }, { status: 429 },
+    { url: firebase.replace("locket-4252a", "another-project") },
+    { headers: { "X-Ios-Bundle-Identifier": "com.other.App" } },
+    { url: "https://api.locketcamera.com/generateImage" },
+    { url: "https://generativelanguage.googleapis.com/v1beta/models/example:generateContent" }
+  ]) assert.deepEqual(run({ ...options, ...overrides }).output, {});
+});
+
+test("Looks module enables the experiment only on the existing Firebase response hook", () => {
+  const regular = fs.readFileSync(path.join(root, "locket_cuios_stable.sgmodule"), "utf8");
+  const experiment = fs.readFileSync(path.join(root, "locket_cuios_looks.sgmodule"), "utf8");
+  const operational = text => text.split("\n").filter(line => !line.startsWith("#!"));
+  assert.deepEqual(operational(experiment.replace("argument=looks-aura-frame", "argument=aura-frame")), operational(regular));
+  assert.equal((experiment.match(/argument=looks-aura-frame/g) || []).length, 1);
+  assert.ok(experiment.includes("chưa xác nhận tạo ảnh AI"));
+});
+
+test("the working v4.0.0 engine is identical outside captions, opt-in Looks and release labels", () => {
   const previous = fs.readFileSync(path.join(root, "scripts/releases/locket-v4.0.0-fddb9e4d0469.js"), "utf8");
   function withoutCatalogue(text) {
     return text.replace(/  \/\/ BEGIN GENERATED CAPTION CATALOGUE[\s\S]*?  \/\/ END GENERATED CAPTION CATALOGUE/, "// CATALOGUE")
+      .replace(/  function looksPatch\(entries\) \{[\s\S]*?(?=  function widgetPatch)/, "")
+      .replace('    if (mode === "looks-aura-frame") mode = "aura-frame";\n', "")
+      .replace("    looksPatch(entries);\n", "")
       .replace(/  function captionPatch\(entries\) \{[\s\S]*?(?=  function widgetPatch)/, "// CAPTION STYLING\n\n");
   }
   const normalized = withoutCatalogue(source)
-    .replaceAll("4.0.3", "4.0.0")
+    .replaceAll("4.0.4", "4.0.0")
     .replaceAll("https://raw.githubusercontent.com/Cuios-shop/", "https://raw.githubusercontent.com/Cuongqtx11/")
     .replace("captions: 94", "captions: 54")
     .replace("· 94 ghi chú.", "· 54 ghi chú.");

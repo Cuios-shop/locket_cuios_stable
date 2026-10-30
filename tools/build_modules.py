@@ -19,7 +19,8 @@ rc=r'^https://'+hosts+r'/(?:v1|v2)/(?:receipts|subscribers)(?:[/?]|$)'
 fb=r'^https://firebaseremoteconfig\.googleapis\.com/v1/projects/(?:locket-4252a|869942740286)/namespaces/firebase:fetch/?(?:\?[^#]*)?$'
 fb_probe=r'firebaseremoteconfig\.googleapis\.com/v1/projects/[^/?#]+/namespaces/[^/?#]+:fetch/?(?:\?[^#]*)?$'
 request=r'^https://(?:'+hosts+r'/(?:v1|v2)/(?:receipts|subscribers)(?:[/?]|$)|'+fb_probe+')'
-variants={'locket_cuios_stable.sgmodule':'aura-frame','locket_cuios_no_widget.sgmodule':''}
+variants={'locket_cuios_stable.sgmodule':'aura-frame','locket_cuios_no_widget.sgmodule':'',
+          'locket_cuios_looks.sgmodule':'looks-aura-frame'}
 for name,argument in variants.items():
     option=', argument='+argument if argument else ''
     text=fr"""#!name=Cuios • Profile thống nhất • v{version}{' • Giữ khung' if not argument else ''}
@@ -40,5 +41,8 @@ cuios-status.invalid = 198.18.0.1
 [MITM]
 hostname = %APPEND% api.revenuecat.com, api.rc-backup.com, api-production.8-lives-cat.io, firebaseremoteconfig.googleapis.com
 """
+    if argument == 'looks-aura-frame':
+        text = text.replace('#!name=Cuios • Profile thống nhất', '#!name=Cuios • Looks AI thử nghiệm')
+        text = text.replace('#!desc=60s/100 MiB', '#!desc=Thử bật camera_filter_config; chưa xác nhận tạo ảnh AI. 60s/100 MiB')
     (root/name).write_text(text)
 print('Published runtime',relative,'and',len(variants),'module variants')

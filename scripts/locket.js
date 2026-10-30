@@ -4,7 +4,7 @@
   "use strict";
 
   var TAG = "[locket_cuios_stable] ";
-  var VERSION = "4.0.3";
+  var VERSION = "4.0.4";
   var STATE_KEY = "CUIOS_STABLE_V4_DIAGNOSTICS";
   var WARNINGS = [];
   var CURRENT_SERVICE = "runtime";
@@ -118,7 +118,7 @@
         "<h1>Cuios · Kiểm tra kết nối</h1><p>Script đang chạy: <strong>v" + VERSION + "</strong>. Mục tiêu: 60s · 100 MiB · 94 ghi chú.</p>" +
         (storageWorking ? "" : "<section><strong>Kho chẩn đoán không ghi/đọc được. Thiếu trạng thái ở đây chưa chứng minh app không có request; cần xem log script.</strong></section>") +
         card("RevenueCat", "revenuecat") + card("Firebase Remote Config", "firebase") +
-        "<section><h2>Kiểm tra HTTPS từ Safari</h2><p><a href='https://api.revenuecat.com/cuios-check'>Kiểm tra RevenueCat</a> · <a href='https://firebaseremoteconfig.googleapis.com/cuios-check'>Kiểm tra Firebase</a></p><p>Chỉ trang có chữ Cuios và v4.0.3 là response kiểm tra từ script. Trang lỗi Google/404 không phải kết quả thành công.</p></section>" +
+        "<section><h2>Kiểm tra HTTPS từ Safari</h2><p><a href='https://api.revenuecat.com/cuios-check'>Kiểm tra RevenueCat</a> · <a href='https://firebaseremoteconfig.googleapis.com/cuios-check'>Kiểm tra Firebase</a></p><p>Chỉ trang có chữ Cuios và v4.0.4 là response kiểm tra từ script. Trang lỗi Google/404 không phải kết quả thành công.</p></section>" +
         card("HTTPS RevenueCat qua trình duyệt", "https_revenuecat") + card("HTTPS Firebase qua trình duyệt", "https_firebase") +
         "<section><h2>Đọc kết quả</h2><p>Nếu chưa có request Firebase, đổi module chưa đủ để Locket tải cấu hình mới. Nếu response đã được sửa mà app vẫn cũ, cần kiểm tra activate/schema phía app. Trang này không tự xoá cache Locket hoặc cấp quyền mic.</p><p>Chỉ bật một module Locket. Bật proxy trước, mở Locket, rồi mở lại trang này.</p></section>" +
         "<p><a href='/status?reload=1'>Tải lại trạng thái</a> · <a href='/report.json'>Xem báo cáo chẩn đoán</a></p><details><summary>Chi tiết có thể gửi để kiểm tra</summary><pre>" + escapeHTML(JSON.stringify(report, null, 2)) + "</pre></details></html>";
@@ -452,8 +452,48 @@
     return count;
   }
 
+  function looksPatch(entries) {
+    // Opt-in experiment: these fields are observed in public configuration code,
+    // not an official API contract. Do not fabricate filter IDs or server access.
+    if (typeof $argument !== "string" || $argument !== "looks-aura-frame") {
+      event("firebase", { looks: { requested: false, action: "not_requested", generationVerified: false } });
+      return;
+    }
+    var key = "camera_filter_config";
+    var config = entries[key];
+    var details = { requested: true, serverConfigPresent: config !== undefined,
+      generationVerified: false };
+    function observe(value) {
+      if (value === undefined) return "absent";
+      if (value === true || value === "true") return "on";
+      if (value === false || value === "false") return "off";
+      return "other";
+    }
+    try {
+      if (typeof config === "string") config = JSON.parse(config);
+      if (config === undefined) config = {};
+      if (!record(config)) throw Error("schema");
+      details.inputFlags = {};
+      ["show_filter_button", "sheet_enabled", "allows_custom_filters"].forEach(function (field) {
+        details.inputFlags[field] = observe(config[field]);
+      });
+      details.sheetGroups = Array.isArray(config.sheet_filters) ? config.sheet_filters.length : 0;
+      details.pickerFilters = Array.isArray(config.picker_filters) ? config.picker_filters.length : 0;
+      mergeEntry(entries, key, { show_filter_button: true, sheet_enabled: true, allows_custom_filters: true });
+      details.action = "configuration_patched";
+    } catch (_) {
+      // Keep unknown/malformed schemas untouched, including their original bytes.
+      WARNINGS.push(key);
+      details.action = "skipped_schema";
+    }
+    // Fixed fields, classifications and counts only: no prompts, photos or IDs.
+    event("firebase", { looks: details });
+    log("looks: " + details.action + "; image generation not verified");
+  }
+
   function widgetPatch(entries) {
     var mode = typeof $argument === "string" ? $argument : "";
+    if (mode === "looks-aura-frame") mode = "aura-frame";
     var theme = { "aura-frame": "aura", "gold-frame": "gold", "rose-frame": "rose" }[mode];
     if (!theme) return "off";
     var changed = mergeEntry(entries, "widget_frame_event", {
@@ -563,6 +603,7 @@
     mergeEntry(entries, "overlays_v2_config", { suggestions_enabled: true });
     var added = captionPatch(entries);
     var widget = widgetPatch(entries);
+    looksPatch(entries);
     payload.state = "UPDATE";
     log("firebase: v" + VERSION + " config target=" + VIDEO_SECONDS + "s; upload-bytes=" + VIDEO_BYTES + "; captions=" + added + "; widget=" + widget);
     event("firebase", { action: WARNINGS.length ? "partial" : "patched", responseAt: Date.now(), warnings: WARNINGS,
