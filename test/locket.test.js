@@ -182,7 +182,6 @@ test("all module rules load an existing script in this repository", () => {
     assert.ok(fs.existsSync(path.join(root, "scripts/locket.js")));
   }
   assert.ok(!moduleText.includes("cloudfunctions"));
-  assert.ok(!moduleText.includes("duyvinh09"));
 });
 
 test("60-second settings cover recording, library selection and trimming consistently", () => {

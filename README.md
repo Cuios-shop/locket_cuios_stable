@@ -76,3 +76,7 @@ npm test
 ```
 
 `content/caption_backgrounds.json` ghi style, ảnh, màu dự phòng, SHA-256 và dung lượng. Ảnh mới có thư mục phiên bản và tên chứa hash, không sửa đè ảnh cũ. Đổi thiết kế đã phát hành cần tăng phiên bản. Runtime không dùng NumPy/Pillow, không chạy ngẫu nhiên hoặc gọi API tạo ảnh trên điện thoại. Mã kế thừa theo MIT.
+
+## Mã nguồn và quyền truy cập
+
+Xem [SECURITY.md](SECURITY.md) để biết kết quả quét, giới hạn của link raw, điều kiện chuyển private và việc JS trên thiết bị vẫn có thể bị sao chép. Hai repo hiện vẫn public để giữ module tải được; chưa có hosting thay thế.
