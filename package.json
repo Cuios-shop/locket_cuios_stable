@@ -1,6 +1,6 @@
 {
   "name": "locket_cuios_stable",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "private": true,
   "description": "Cuios: giữ cấu hình 60s/100 MiB, 94 ghi chú với 90 nền riêng và bốn mẫu bản quyền giữ nguyên",
   "scripts": {

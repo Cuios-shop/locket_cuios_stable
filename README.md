@@ -1,14 +1,18 @@
-# Cuios v4.0.2 · 94 ghi chú, 90 nền riêng
+# Cuios v4.0.3 · 94 ghi chú, 90 nền riêng
+
+## Chuyển sang Organization Cuios.shop
+
+Tên hiển thị là **Cuios.shop**, tên dùng trong URL là **Cuios-shop**. Phiên bản 4.0.3 cập nhật URL module/JS/ảnh sang Organization và nhãn phát hành; giữ logic media, nội dung/nền ghi chú và khung widget. Repo vẫn public để Shadowrocket tải được. Lịch sử và artifact cũ được giữ, không phải tạo lại repo.
 
 ## Bản JS làm rối Protected P1
 
-[Module Protected P1](https://raw.githubusercontent.com/Cuongqtx11/locket_cuios_stable/main/locket_cuios_protected.sgmodule) có cùng engine, giới hạn video và ghi chú của bản này, dùng artifact làm rối riêng. Chỉ bật một module Locket; thử Protected trên máy trước khi quyết định dùng lâu dài.
+[Module Protected P1](https://raw.githubusercontent.com/Cuios-shop/locket_cuios_stable/main/locket_cuios_protected.sgmodule) có cùng engine, giới hạn video và ghi chú của bản này, dùng artifact làm rối riêng. Chỉ bật một module Locket; thử Protected trên máy trước khi quyết định dùng lâu dài.
 
 Đã chạy lại toàn bộ kiểm thử trên bản Protected trong sandbox. Chưa kiểm chứng trên iPhone. **Đây không phải mã hóa chống sao chép tuyệt đối; repo vẫn public và còn file nguồn dễ đọc/lịch sử.** Ghi chú AI/câu tự nhận không tạo khóa xác thực. Xem [PROTECTED.md](PROTECTED.md) và [AI_NOTICE.md](AI_NOTICE.md).
 
-**Repo:** [Cuongqtx11/locket_cuios_stable](https://github.com/Cuongqtx11/locket_cuios_stable).
+**Repo:** [Cuios-shop/locket_cuios_stable](https://github.com/Cuios-shop/locket_cuios_stable).
 
-Giữ xử lý Gold, mic/âm thanh, camera, upload, cache và khung Aura của bản `696fe10` mà người dùng xác nhận hoạt động. Bản này thay phần chọn nền của 90 ghi chú thường. Bốn ghi chú bản quyền giữ nguyên cả nội dung, icon, màu nền và URL ảnh từ v4.0.1.
+Giữ xử lý Gold, mic/âm thanh, camera, upload, cache và khung Aura của bản `696fe10` mà người dùng xác nhận hoạt động. Bản này thay phần chọn nền của 90 ghi chú thường. Bốn ghi chú bản quyền giữ nguyên nội dung, icon, màu nền và dữ liệu ảnh từ v4.0.1; chỉ phần chủ repo trong URL ảnh chuyển sang Cuios-shop.
 
 ## Video: đã có cấu hình 60s/100 MiB
 
@@ -17,7 +21,7 @@ Giữ xử lý Gold, mic/âm thanh, camera, upload, cache và khung Aura của b
 | Quay video | 60 giây | Đã quay được 60 giây |
 | Nhập/upload video | 60 giây, 100 MiB = 104.857.600 bytes | App vẫn giới hạn khoảng 10 giây/6 MB |
 
-Các giá trị upload đã được đặt từ trước bản này, gồm camera_roll, cấu hình upload và các giới hạn lồng nhau. **Không thay logic video trong v4.0.2**, không chèn thêm cờ phỏng đoán. Kiểm thử hồi quy vẫn mô phỏng đầu vào 10s/6 MiB và xác nhận response cấu hình được đổi thành 60s/100 MiB.
+Các giá trị upload đã được đặt từ trước bản này, gồm camera_roll, cấu hình upload và các giới hạn lồng nhau. **Không thay logic video trong v4.0.3**, không chèn thêm cờ phỏng đoán. Kiểm thử hồi quy vẫn mô phỏng đầu vào 10s/6 MiB và xác nhận response cấu hình được đổi thành 60s/100 MiB.
 
 Giá trị cấu hình không chứng minh app hoặc máy chủ chấp nhận file dài/lớn. Nếu thực tế vẫn 10s/6 MB thì cần phân biệt app chưa activate, schema app không dùng các field này, hay giới hạn phía server; chưa đủ bằng chứng khẳng định máy chủ là nguyên nhân. Bản này không tuyên bố đã vượt được giới hạn upload thực tế.
 
@@ -43,7 +47,7 @@ Vẫn có đủ **94 ghi chú**, giữ nguyên câu chữ, emoji và ID của b�
 ## Cài module mới
 
 ```text
-https://raw.githubusercontent.com/Cuongqtx11/locket_cuios_stable/main/locket_cuios_stable.sgmodule
+https://raw.githubusercontent.com/Cuios-shop/locket_cuios_stable/main/locket_cuios_stable.sgmodule
 ```
 
 Chỉ bật một module Locket trong cấu hình Shadowrocket đang dùng. Giữ HTTPS Decryption/MITM và CA đã tin cậy; kết nối Shadowrocket trước khi mở Locket. Module chính vẫn dùng `aura-frame`; bản `locket_cuios_no_widget.sgmodule` giữ khung server. Cả hai cùng có bộ nền mới.
@@ -52,8 +56,8 @@ Mọi rule dùng cùng runtime có hash trong tên. Link ghim commit cũ tiếp 
 
 ## Hai repo được giữ
 
-- [locket_cuios_stable](https://github.com/Cuongqtx11/locket_cuios_stable): bản này, cấu hình 60s/100 MiB và 94 ghi chú.
-- [locket_cuios_10s_6mb](https://github.com/Cuongqtx11/locket_cuios_10s_6mb): bản 4.1.0 riêng, quay 60s và nhập 10s/6 MiB; không chỉnh sửa trong lần cập nhật này.
+- [locket_cuios_stable](https://github.com/Cuios-shop/locket_cuios_stable): bản này, cấu hình 60s/100 MiB và 94 ghi chú.
+- [locket_cuios_10s_6mb](https://github.com/Cuios-shop/locket_cuios_10s_6mb): bản 4.1.0 riêng, quay 60s và nhập 10s/6 MiB; không chỉnh sửa trong lần cập nhật này.
 
 Runtime đã phát hành và các nền/khung cũ được giữ nguyên để các link ghim commit trước tiếp tục hoạt động.
 
@@ -86,3 +90,5 @@ npm test
 ## Mã nguồn và quyền truy cập
 
 Xem [SECURITY.md](SECURITY.md) để biết kết quả quét, giới hạn của link raw, điều kiện chuyển private và việc JS trên thiết bị vẫn có thể bị sao chép. Hai repo hiện vẫn public để giữ module tải được; chưa có hosting thay thế.
+
+File locket60s_10s_6mb.sgmodule trong repo này là module tương thích cũ, tải bản 10s/6 MiB từ repo locket_cuios_10s_6mb.

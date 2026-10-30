@@ -1,13 +1,13 @@
 {
   "schema": 1,
   "profile": "cuios-obf-p1",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "compiler": "javascript-obfuscator@5.9.0",
-  "sourceRuntime": "scripts/releases/locket-v4.0.2-a4864b25fd4c.js",
-  "sourceSha256": "a4864b25fd4c79949afba88338aa458e88006dd9b0671ca260e22622f6a78dfc",
-  "runtime": "scripts/protected/locket-v4.0.2-073b0c4d2c82.js",
-  "sha256": "073b0c4d2c824113f282287347dce97b63c56126861f5957a19f4e97158ee8a9",
-  "bytes": 442061,
+  "sourceRuntime": "scripts/releases/locket-v4.0.3-4b4a58a64bdb.js",
+  "sourceSha256": "4b4a58a64bdb186da319473a76f13107737f7d0b1f07d28c389083d4c8c3927e",
+  "runtime": "scripts/protected/locket-v4.0.3-e83a43b3da91.js",
+  "sha256": "e83a43b3da91f7b26a3e15083bbbd2b4008475420c5a8dcbae635f5df7e2c007",
+  "bytes": 483689,
   "modules": [
     "locket_cuios_protected.sgmodule",
     "locket_cuios_protected_no_widget.sgmodule"

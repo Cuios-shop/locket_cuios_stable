@@ -4,7 +4,7 @@ import hashlib,json
 
 root=Path(__file__).resolve().parents[1]
 version=json.loads((root/'package.json').read_text())['version']
-base='https://raw.githubusercontent.com/Cuongqtx11/locket_cuios_stable/main/'
+base='https://raw.githubusercontent.com/Cuios-shop/locket_cuios_stable/main/'
 source=(root/'scripts/locket.js').read_bytes()
 digest=hashlib.sha256(source).hexdigest()
 relative='scripts/releases/locket-v'+version+'-'+digest[:12]+'.js'
@@ -24,7 +24,7 @@ for name,argument in variants.items():
     option=', argument='+argument if argument else ''
     text=fr"""#!name=Cuios • Profile thống nhất • v{version}{' • Giữ khung' if not argument else ''}
 #!desc=60s/100 MiB, mic, 94 ghi chú; có trang chẩn đoán cục bộ. Chỉ bật một module Locket. Xem README về giới hạn native/cache.
-#!author=Cuongqtx11 / Cuios
+#!author=Cuios.shop
 #!moduleUrl={base}{name}
 
 [Script]

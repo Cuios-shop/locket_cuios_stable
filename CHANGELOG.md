@@ -1,5 +1,12 @@
 # Thay đổi
 
+## 4.0.3 — chuyển đường phát hành sang Cuios-shop
+
+- Cùng repo được chuyển chủ sở hữu, giữ lịch sử và mọi artifact cũ.
+- Module/JS/ảnh dùng URL Organization; nhãn tác giả module là Cuios.shop.
+- Giữ logic quay/upload, mic, ghi chú và widget; không tự bật private.
+- Dựng lại runtime chuẩn/protected với hash mới; thông báo LICENSE gốc giữ nguyên.
+
 ## 4.0.2 — 90 nền riêng, giữ cấu hình video và bản quyền
 
 - Xác nhận upload đã có cấu hình 60s/100 MiB; giữ nguyên logic media/mic/cache. Giới hạn upload thực tế 10s/6 MB do người dùng báo chưa được vượt hoặc xác định nguyên nhân.
