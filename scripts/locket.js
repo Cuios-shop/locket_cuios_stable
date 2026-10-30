@@ -4,7 +4,7 @@
   "use strict";
 
   var TAG = "[locket_cuios_stable] ";
-  var VERSION = "4.0.4";
+  var VERSION = "4.0.5";
   var STATE_KEY = "CUIOS_STABLE_V4_DIAGNOSTICS";
   var WARNINGS = [];
   var CURRENT_SERVICE = "runtime";
@@ -118,7 +118,7 @@
         "<h1>Cuios · Kiểm tra kết nối</h1><p>Script đang chạy: <strong>v" + VERSION + "</strong>. Mục tiêu: 60s · 100 MiB · 94 ghi chú.</p>" +
         (storageWorking ? "" : "<section><strong>Kho chẩn đoán không ghi/đọc được. Thiếu trạng thái ở đây chưa chứng minh app không có request; cần xem log script.</strong></section>") +
         card("RevenueCat", "revenuecat") + card("Firebase Remote Config", "firebase") +
-        "<section><h2>Kiểm tra HTTPS từ Safari</h2><p><a href='https://api.revenuecat.com/cuios-check'>Kiểm tra RevenueCat</a> · <a href='https://firebaseremoteconfig.googleapis.com/cuios-check'>Kiểm tra Firebase</a></p><p>Chỉ trang có chữ Cuios và v4.0.4 là response kiểm tra từ script. Trang lỗi Google/404 không phải kết quả thành công.</p></section>" +
+        "<section><h2>Kiểm tra HTTPS từ Safari</h2><p><a href='https://api.revenuecat.com/cuios-check'>Kiểm tra RevenueCat</a> · <a href='https://firebaseremoteconfig.googleapis.com/cuios-check'>Kiểm tra Firebase</a></p><p>Chỉ trang có chữ Cuios và v4.0.5 là response kiểm tra từ script. Trang lỗi Google/404 không phải kết quả thành công.</p></section>" +
         card("HTTPS RevenueCat qua trình duyệt", "https_revenuecat") + card("HTTPS Firebase qua trình duyệt", "https_firebase") +
         "<section><h2>Đọc kết quả</h2><p>Nếu chưa có request Firebase, đổi module chưa đủ để Locket tải cấu hình mới. Nếu response đã được sửa mà app vẫn cũ, cần kiểm tra activate/schema phía app. Trang này không tự xoá cache Locket hoặc cấp quyền mic.</p><p>Chỉ bật một module Locket. Bật proxy trước, mở Locket, rồi mở lại trang này.</p></section>" +
         "<p><a href='/status?reload=1'>Tải lại trạng thái</a> · <a href='/report.json'>Xem báo cáo chẩn đoán</a></p><details><summary>Chi tiết có thể gửi để kiểm tra</summary><pre>" + escapeHTML(JSON.stringify(report, null, 2)) + "</pre></details></html>";
@@ -410,8 +410,8 @@
     entries[key] = JSON.stringify(config);
   }
 
-  function captionPatch(entries) {
-    // Replace the old picker catalogue as requested; never edit posted moments.
+  function captionPatch(entries, previous) {
+    // Ordinary profile replaces captions; Looks keeps native groups first.
     var types = [];
     var count = 0;
     var colors = {
@@ -447,15 +447,81 @@
         })
       };
     });
+    if (previous) {
+      var owned = Object.create(null);
+      types.forEach(function (type) { owned[type] = true; });
+      var nativeGroups = [];
+      previous.groups.forEach(function (group) {
+        var retained = group.items.filter(function (item) {
+          return !record(item) || typeof item.overlay_id !== "string" ||
+            item.overlay_id.indexOf("caption:") !== 0 || !owned[item.overlay_id.slice(8)];
+        });
+        // Remove only groups emptied by replacing our exact generated IDs.
+        if (retained.length || group.items.length === 0) {
+          nativeGroups.push(Object.assign({}, group, { items: retained }));
+        }
+      });
+      groups = nativeGroups.concat(groups);
+      types = previous.types.filter(function (type) {
+        return typeof type !== "string" || !owned[type];
+      }).concat(types);
+    }
     entries.overlay_items = JSON.stringify(groups);
     entries.overlay_dynamic_captions = JSON.stringify(types);
     return count;
   }
 
+  function overlayPatch(entries) {
+    var mode = typeof $argument === "string" ? $argument : "";
+    var details = { mode: mode === "looks-native" ? "native" : mode === "looks-aura-frame" ? "merge" : "replace" };
+    if (details.mode === "replace") {
+      Object.assign(entries, { captions_enabled: "true", overlay_navigator_enabled: "true",
+        music_caption_enabled: "true", music_caption_song_preview_enabled: "true", link_caption_link_enabled: "true" });
+      mergeEntry(entries, "overlays_v2_config", { suggestions_enabled: true });
+      var count = captionPatch(entries);
+      event("firebase", { overlays: { mode: "replace", action: "replaced", addedCaptions: count } });
+      return count;
+    }
+    // Looks must not force a legacy navigator or overwrite server layout flags.
+    if (details.mode === "native") {
+      event("firebase", { overlays: { mode: "native", action: "native_preserved", addedCaptions: 0 } });
+      return 0;
+    }
+    var keys = ["overlay_items", "overlay_dynamic_captions"];
+    var parsed = {}, missing = false, invalid = [];
+    keys.forEach(function (key) {
+      if (entries[key] === undefined) { missing = true; return; }
+      try {
+        var value = typeof entries[key] === "string" ? JSON.parse(entries[key]) : entries[key];
+        if (!Array.isArray(value)) throw Error("schema");
+        if (key === "overlay_items" && !value.every(function (group) {
+          return record(group) && Array.isArray(group.items);
+        })) throw Error("groups");
+        parsed[key] = value;
+      } catch (_) { invalid.push(key); }
+    });
+    details.inputGroups = parsed.overlay_items ? parsed.overlay_items.length : 0;
+    details.inputDynamicTypes = parsed.overlay_dynamic_captions ? parsed.overlay_dynamic_captions.length : 0;
+    details.addedCaptions = 0;
+    if (invalid.length || missing) {
+      // Both lists are an atomic pair. Missing entries may use native app defaults.
+      // Preserve the original values (including whitespace and malformed JSON).
+      invalid.forEach(function (key) { WARNINGS.push(key); });
+      details.action = invalid.length ? "skipped_schema" : "missing_catalogue_preserved";
+      event("firebase", { overlays: details });
+      return 0;
+    }
+    var added = captionPatch(entries, { groups: parsed.overlay_items, types: parsed.overlay_dynamic_captions });
+    details.action = "merged";
+    details.addedCaptions = added;
+    event("firebase", { overlays: details });
+    return added;
+  }
+
   function looksPatch(entries) {
     // Opt-in experiment: these fields are observed in public configuration code,
     // not an official API contract. Do not fabricate filter IDs or server access.
-    if (typeof $argument !== "string" || $argument !== "looks-aura-frame") {
+    if (typeof $argument !== "string" || ($argument !== "looks-aura-frame" && $argument !== "looks-native")) {
       event("firebase", { looks: { requested: false, action: "not_requested", generationVerified: false } });
       return;
     }
@@ -572,11 +638,6 @@
       // Community-observed compatibility switch, not a verified Locket API contract.
       mh_mic_enabled_v16: "true",
       custom_widget_frames_enabled: "true",
-      captions_enabled: "true",
-      overlay_navigator_enabled: "true",
-      music_caption_enabled: "true",
-      music_caption_song_preview_enabled: "true",
-      link_caption_link_enabled: "true",
       profile_badge_visible: "true"
     });
     ["camera_roll_video_max_duration", "camera_roll_max_duration", "camera_roll_duration",
@@ -600,8 +661,7 @@
     ["video_upload_max_size_mb", "camera_roll_max_size_mb", "max_file_size_mb"].forEach(function (key) {
       if (entries[key] !== undefined) entries[key] = "100";
     });
-    mergeEntry(entries, "overlays_v2_config", { suggestions_enabled: true });
-    var added = captionPatch(entries);
+    var added = overlayPatch(entries);
     var widget = widgetPatch(entries);
     looksPatch(entries);
     payload.state = "UPDATE";

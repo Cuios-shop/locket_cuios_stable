@@ -286,7 +286,7 @@ test("diagnostics expose only fixed schema/flag classifications, never response 
   };
   const result = run({ url: firebase, payload: { entries } });
   const logs = result.logs.join("\n");
-  assert.ok(logs.includes("diag v4.0.4 input schema camera=object camera_roll=object"));
+  assert.ok(logs.includes("diag v4.0.5 input schema camera=object camera_roll=object"));
   assert.ok(logs.includes("overlay_items=array(1)"));
   assert.ok(logs.includes("video_sound_enabled=off microphone_enabled=on"));
   assert.ok(logs.includes("mh_mic_enabled_v16=other"));
@@ -314,7 +314,7 @@ test("widget event is opt in, preserves unknown metadata and keeps asset in this
   const patched = JSON.parse(result.body.entries.widget_frame_event);
   assert.equal(patched.uid, "cuios_gold_frame_v3");
   assert.deepEqual(patched.extra, { keep: true });
-  assert.equal(patched.url, "https://raw.githubusercontent.com/Cuios-shop/locket_cuios_stable/main/assets/widget-gold.png?v=4.0.4");
+  assert.equal(patched.url, "https://raw.githubusercontent.com/Cuios-shop/locket_cuios_stable/main/assets/widget-gold.png?v=4.0.5");
   assert.equal(result.body.entries.video_max_duration, "60.0");
   assert.ok(result.logs.some(line => line.includes("widget=gold-event-experimental")));
   const asset = fs.readFileSync(path.join(root, "assets/widget-gold.png"));
@@ -398,7 +398,7 @@ test("Firebase recognizes only Locket project IDs for mutation and observes othe
 test("Firebase ETag follows patched content, stays stable across repeat fetches and differs by theme", () => {
   const first = run({ url: firebase, payload: { state: "UPDATE", entries: { camera: '{"max_duration":5}' } }, responseHeaders: { etag: '"server-static"' } });
   const second = run({ url: firebase, payload: first.body, responseHeaders: { ETag: '"server-static"' } });
-  assert.match(first.output.headers.etag, /^"cuios-4\.0\.4-/);
+  assert.match(first.output.headers.etag, /^"cuios-4\.0\.5-/);
   assert.notEqual(first.output.headers.etag, '"server-static"');
   assert.equal(first.output.headers.etag, second.output.headers.etag);
   const gold = run({ url: firebase, payload: first.body, argument: "gold-frame" });
@@ -443,7 +443,7 @@ test("NO_CHANGE without complete entries is reported, never fabricated from old 
 test("local status proves runtime execution but never claims native features or activation were verified", () => {
   const store = memoryStore();
   const before = report(store);
-  assert.equal(before.runtime, "4.0.4");
+  assert.equal(before.runtime, "4.0.5");
   assert.deepEqual(before.observed, {});
   assert.equal(before.deviceFeaturesVerified, false);
   assert.equal(before.recipe.seconds, 60);
@@ -531,7 +531,7 @@ test("HTTPS self-check is local and records browser transport separately from ac
     assert.equal(rules.filter(rule => rule.type === "http-request" && rule.pattern.test(url)).length, 1);
     const result = run({ url, requestOnly: true, store });
     assert.equal(result.output.response.status, 200);
-    assert.ok(result.output.response.body.includes("Cuios · HTTPS check v4.0.4"));
+    assert.ok(result.output.response.body.includes("Cuios · HTTPS check v4.0.5"));
   }
   const state = report(store).observed;
   assert.equal(state.https_firebase.action, "https_hook_seen");
@@ -604,7 +604,7 @@ test("posted moments and profile APIs are never rewritten by the new catalogue o
   }
 });
 
-test("Looks changes only three filter fields and keeps server catalogues, safety and media", () => {
+test("Looks changes only three filter fields and keeps server filter catalogues, safety and media", () => {
   const config = {
     show_filter_button: false, sheet_enabled: false, allows_custom_filters: false,
     open_sheet_immediately: false, custom_prompt: "private-user-prompt",
@@ -623,7 +623,9 @@ test("Looks changes only three filter fields and keeps server catalogues, safety
     });
     const withoutFilters = body => {
       const clone = structuredClone(body);
-      delete clone.entries.camera_filter_config;
+      for (const key of ["camera_filter_config", "overlay_items", "overlay_dynamic_captions",
+        "overlays_v2_config", "captions_enabled", "overlay_navigator_enabled", "music_caption_enabled",
+        "music_caption_song_preview_enabled", "link_caption_link_enabled"]) delete clone.entries[key];
       return clone;
     };
     assert.deepEqual(withoutFilters(enabled.body), withoutFilters(baseline.body));
@@ -638,7 +640,8 @@ test("Looks can supply the observed UI flags without fabricating a catalogue or 
   });
   assert.equal(JSON.parse(result.body.entries.camera).max_duration, 60);
   assert.equal(JSON.parse(result.body.entries.camera_roll).max_upload_bytes, 104857600);
-  assert.equal(JSON.parse(result.body.entries.overlay_items).flatMap(group => group.items).length, 94);
+  assert.equal(Object.hasOwn(result.body.entries, "overlay_items"), false);
+  assert.equal(Object.hasOwn(result.body.entries, "overlay_dynamic_captions"), false);
 });
 
 test("Looks is opt-in and does not alter filter data in the regular modules", () => {
@@ -721,6 +724,153 @@ test("Looks module enables the experiment only on the existing Firebase response
   assert.ok(experiment.includes("chưa xác nhận tạo ảnh AI"));
 });
 
+function nativeOverlayFixture() {
+  // Synthetic AI item: tests preservation of an unknown type, not a real API ID.
+  return {
+    overlay_items: JSON.stringify([{ section: "Native", layout: { future: true }, items: [
+      { overlay_id: "caption:standard", source: "local", caption: { type: "standard" } },
+      { overlay_id: "filter:fixture_ai", source: "fixture", custom_field: { required: true } },
+      { overlay_id: "caption:music", source: "local", caption: { type: "music" } }
+    ] }, { section: "Empty native section", items: [], future: 7 }]),
+    overlay_dynamic_captions: JSON.stringify(["standard", "music", "fixture_ai", { future: "opaque" }]),
+    captions_enabled: "false", overlay_navigator_enabled: "false", music_caption_enabled: "false",
+    music_caption_song_preview_enabled: "false", link_caption_link_enabled: "false",
+    overlays_v2_config: '{ "suggestions_enabled": false, "native_layout": {"future":true} }'
+  };
+}
+
+test("regression: v4.0.4 drops native AI-like entries but Looks now preserves them before custom notes", () => {
+  const entries = nativeOverlayFixture();
+  const options = { url: firebase, argument: "looks-aura-frame", payload: { entries } };
+  const previous = fs.readFileSync(path.join(root, "scripts/releases/locket-v4.0.4-9e969abd0ee5.js"), "utf8");
+  const broken = JSON.parse(run(options, previous).body.entries.overlay_items);
+  assert.ok(!broken.flatMap(group => group.items).some(item => item.overlay_id === "filter:fixture_ai"));
+  const store = memoryStore();
+  const fixed = run({ ...options, store }).body.entries;
+  const groups = JSON.parse(fixed.overlay_items);
+  assert.deepEqual(groups.slice(0, 2), JSON.parse(entries.overlay_items));
+  assert.equal(groups.slice(2).flatMap(group => group.items).length, 94);
+  assert.equal(groups[2].items[0].caption.text, "t.me/tomqtx1111");
+  assert.deepEqual(JSON.parse(fixed.overlay_dynamic_captions).slice(0, 4), JSON.parse(entries.overlay_dynamic_captions));
+  for (const key of Object.keys(entries).filter(key => !["overlay_items", "overlay_dynamic_captions"].includes(key))) {
+    assert.equal(fixed[key], entries[key], key);
+  }
+  assert.deepEqual(report(store).observed.firebase.overlays, {
+    mode: "merge", inputGroups: 2, inputDynamicTypes: 4, addedCaptions: 94, action: "merged"
+  });
+});
+
+test("Looks merging is idempotent and replaces only exact Cuios IDs in mixed native groups", () => {
+  const entries = nativeOverlayFixture();
+  const options = { url: firebase, argument: "looks-aura-frame", payload: { entries } };
+  const first = run(options);
+  const again = run({ ...options, payload: first.body });
+  assert.deepEqual(again.body, first.body);
+  assert.equal(again.output.headers.etag, first.output.headers.etag);
+  const groups = JSON.parse(first.body.entries.overlay_items);
+  const custom = groups[2].items[0];
+  const mixed = { section: "Mixed", metadata: "preserve", items: [
+    custom, { overlay_id: "caption:cuios_future_native", caption: { type: "future" } },
+    { overlay_id: "caption:music", source: "local" }, null
+  ] };
+  const fixed = run({ ...options, payload: { entries: {
+    ...entries, overlay_items: JSON.stringify([mixed]),
+    overlay_dynamic_captions: JSON.stringify([custom.overlay_id.slice(8), "music", "cuios_future_native"])
+  } } }).body.entries;
+  const after = JSON.parse(fixed.overlay_items);
+  assert.deepEqual(after[0], { ...mixed, items: mixed.items.slice(1) });
+  assert.equal(after.flatMap(group => group.items).filter(item => item && item.overlay_id === custom.overlay_id).length, 1);
+  const types = JSON.parse(fixed.overlay_dynamic_captions);
+  assert.deepEqual(types.slice(0, 2), ["music", "cuios_future_native"]);
+  assert.equal(types.filter(type => type === custom.overlay_id.slice(8)).length, 1);
+});
+
+test("Looks preserves native list metadata and opaque items from both object and string entries", () => {
+  for (const asString of [false, true]) {
+    const groups = [{ section: "Native", future_metadata: { revision: 2 }, items: [
+      { overlay_id: "future:opaque", payload: { nested: [1, 2] } }, "future-item", 9
+    ] }];
+    const types = ["future", { future_type: [1, 2] }, 9];
+    const result = run({ url: firebase, argument: "looks-aura-frame", payload: { entries: {
+      overlay_items: asString ? JSON.stringify(groups) : groups,
+      overlay_dynamic_captions: asString ? JSON.stringify(types) : types
+    } } });
+    assert.deepEqual(JSON.parse(result.body.entries.overlay_items)[0], groups[0]);
+    assert.deepEqual(JSON.parse(result.body.entries.overlay_dynamic_captions).slice(0, 3), types);
+  }
+});
+
+test("Looks preserves both overlay entries atomically when either schema is unrecognized", () => {
+  for (const bad of ["{broken", '{"groups":[]}', "null", "7", '[{"section":"future"}]']) {
+    const entries = { ...nativeOverlayFixture(), overlay_items: bad };
+    const store = memoryStore();
+    const result = run({ url: firebase, argument: "looks-aura-frame", store, payload: { entries } });
+    for (const key of Object.keys(entries)) assert.deepEqual(result.body.entries[key], entries[key], key);
+    const data = report(store).observed.firebase;
+    assert.equal(data.overlays.action, "skipped_schema");
+    assert.equal(data.sentCaptions, 0);
+    assert.ok(data.warnings.includes("overlay_items"));
+  }
+  const entries = { ...nativeOverlayFixture(), overlay_dynamic_captions: '{"future":[]}' };
+  const result = run({ url: firebase, argument: "looks-aura-frame", payload: { entries } });
+  for (const key of Object.keys(entries)) assert.deepEqual(result.body.entries[key], entries[key], key);
+});
+
+test("Looks keeps missing catalogue keys absent so native app defaults can remain active", () => {
+  for (const missing of [["overlay_items"], ["overlay_dynamic_captions"], ["overlay_items", "overlay_dynamic_captions"]]) {
+    const entries = nativeOverlayFixture();
+    for (const key of missing) delete entries[key];
+    const store = memoryStore();
+    const result = run({ url: firebase, argument: "looks-aura-frame", store, payload: { entries } });
+    for (const key of Object.keys(entries)) assert.deepEqual(result.body.entries[key], entries[key], key);
+    for (const key of missing) assert.equal(Object.hasOwn(result.body.entries, key), false);
+    assert.equal(report(store).observed.firebase.overlays.action, "missing_catalogue_preserved");
+    assert.equal(report(store).observed.firebase.sentCaptions, 0);
+  }
+});
+
+test("Looks native mode preserves every caption entry and widget frame while keeping media and filter flags", () => {
+  for (const overlay_items of [nativeOverlayFixture().overlay_items, '{"future_layout":"opaque"}', "{broken"]) {
+    const entries = { ...nativeOverlayFixture(), overlay_items,
+      widget_frame_event: '{ "uid": "server-frame", "unknown": true }' };
+    const store = memoryStore();
+    const result = run({ url: firebase, argument: "looks-native", store, payload: { entries } });
+    for (const key of Object.keys(entries)) assert.deepEqual(result.body.entries[key], entries[key], key);
+    assert.equal(JSON.parse(result.body.entries.camera).max_duration, 60);
+    assert.equal(JSON.parse(result.body.entries.camera_roll).max_upload_bytes, 104857600);
+    assert.equal(JSON.parse(result.body.entries.camera_filter_config).show_filter_button, true);
+    const data = report(store).observed.firebase;
+    assert.equal(data.looks.requested, true);
+    assert.equal(data.looks.generationVerified, false);
+    assert.deepEqual(data.overlays, { mode: "native", action: "native_preserved", addedCaptions: 0 });
+    assert.equal(data.sentCaptions, 0);
+    assert.equal(data.widget, "off");
+  }
+  const empty = run({ url: firebase, argument: "looks-native", payload: { entries: {} } }).body.entries;
+  for (const key of Object.keys(nativeOverlayFixture()).concat("widget_frame_event")) assert.equal(Object.hasOwn(empty, key), false);
+});
+
+test("ordinary profile preserves the previous release behavior for complete native input", () => {
+  const previous = fs.readFileSync(path.join(root, "scripts/releases/locket-v4.0.4-9e969abd0ee5.js"), "utf8");
+  const options = { url: firebase, argument: "aura-frame", payload: { entries: {
+    ...nativeOverlayFixture(), camera: '{"max_duration":3,"audio":{"enabled":false}}',
+    camera_roll: '{"max_duration":10,"max_upload_bytes":6291456}', camera_filter_config: '{"sheet_enabled":false}'
+  } } };
+  const before = run(options, previous).body;
+  const after = run(options).body;
+  before.entries.widget_frame_event = before.entries.widget_frame_event.replace("?v=4.0.4", "?v=4.0.5");
+  assert.deepEqual(after, before);
+});
+
+test("native Looks module uses the same hooks and enables its mode only on Firebase response", () => {
+  const regular = fs.readFileSync(path.join(root, "locket_cuios_stable.sgmodule"), "utf8");
+  const native = fs.readFileSync(path.join(root, "locket_cuios_looks_native.sgmodule"), "utf8");
+  const operational = text => text.split("\n").filter(line => !line.startsWith("#!"));
+  assert.deepEqual(operational(native.replace("argument=looks-native", "argument=aura-frame")), operational(regular));
+  assert.equal((native.match(/argument=looks-native/g) || []).length, 1);
+  assert.ok(native.includes("Không chèn ghi chú Cuios"));
+});
+
 test("the working v4.0.0 engine is identical outside captions, opt-in Looks and release labels", () => {
   const previous = fs.readFileSync(path.join(root, "scripts/releases/locket-v4.0.0-fddb9e4d0469.js"), "utf8");
   function withoutCatalogue(text) {
@@ -728,10 +878,13 @@ test("the working v4.0.0 engine is identical outside captions, opt-in Looks and 
       .replace(/  function looksPatch\(entries\) \{[\s\S]*?(?=  function widgetPatch)/, "")
       .replace('    if (mode === "looks-aura-frame") mode = "aura-frame";\n', "")
       .replace("    looksPatch(entries);\n", "")
-      .replace(/  function captionPatch\(entries\) \{[\s\S]*?(?=  function widgetPatch)/, "// CAPTION STYLING\n\n");
+      .replace("    var added = overlayPatch(entries);", '    mergeEntry(entries, "overlays_v2_config", { suggestions_enabled: true });\n    var added = captionPatch(entries);')
+      .replace('      custom_widget_frames_enabled: "true",\n      profile_badge_visible:',
+        '      custom_widget_frames_enabled: "true",\n      captions_enabled: "true",\n      overlay_navigator_enabled: "true",\n      music_caption_enabled: "true",\n      music_caption_song_preview_enabled: "true",\n      link_caption_link_enabled: "true",\n      profile_badge_visible:')
+      .replace(/  function captionPatch\([^)]*\) \{[\s\S]*?(?=  function widgetPatch)/, "// CAPTION STYLING\n\n");
   }
   const normalized = withoutCatalogue(source)
-    .replaceAll("4.0.4", "4.0.0")
+    .replaceAll("4.0.5", "4.0.0")
     .replaceAll("https://raw.githubusercontent.com/Cuios-shop/", "https://raw.githubusercontent.com/Cuongqtx11/")
     .replace("captions: 94", "captions: 54")
     .replace("· 94 ghi chú.", "· 54 ghi chú.");

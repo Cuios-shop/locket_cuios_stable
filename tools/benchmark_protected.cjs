@@ -10,7 +10,7 @@ const release = require("../release.json");
 const protectedRelease = require("../protected-release.json");
 const moduleText = fs.readFileSync(path.join(root, protectedRelease.modules[0]), "utf8");
 const argument = moduleText.match(/argument=([^,\n]+)/)?.[1];
-const cases = ["revenuecat", "firebase", "firebase_looks"];
+const cases = ["revenuecat", "firebase", "firebase_looks", "firebase_looks_native"];
 const results = {};
 for (const kind of cases) {
   let reference;
@@ -24,11 +24,15 @@ for (const kind of cases) {
           ? "https://firebaseremoteconfig.googleapis.com/v1/projects/locket-4252a/namespaces/firebase:fetch"
           : "https://api.revenuecat.com/v1/subscribers/cuios-fixture", headers: { "User-Agent": "Locket/fixture" } },
         $response: { status: 200, headers: {}, body: kind.startsWith("firebase")
-          ? '{"state":"UPDATE","entries":{}}' : '{"subscriber":{"entitlements":{},"subscriptions":{}}}' },
+          ? JSON.stringify({ state: "UPDATE", entries: kind === "firebase" ? {} : {
+            overlay_items: '[{"section":"Native fixture","items":[{"overlay_id":"filter:fixture_ai","source":"fixture"}]}]',
+            overlay_dynamic_captions: '["standard","music"]'
+          } }) : '{"subscriber":{"entitlements":{},"subscriptions":{}}}' },
         console: { log() {} },
         $done(value) { calls++; result = JSON.parse(JSON.stringify(value)); }
       };
-      if (kind === "firebase_looks") sandbox.$argument = "looks-aura-frame";
+      if (kind === "firebase_looks_native") sandbox.$argument = "looks-native";
+      else if (kind === "firebase_looks") sandbox.$argument = "looks-aura-frame";
       else if (argument) sandbox.$argument = argument;
       const start = performance.now();
       vm.runInNewContext(code, sandbox, { timeout: 1000, contextCodeGeneration: { strings: false, wasm: false } });

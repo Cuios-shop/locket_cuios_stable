@@ -1,10 +1,14 @@
-# Cuios v4.0.4 · Thử nghiệm Locket Looks
+# Cuios v4.0.5 · Giữ mục gốc khi bật Looks
 
 ## Bật thử filter dựng ảnh AI
 
-Đã thêm [module Looks Protected P1](https://raw.githubusercontent.com/Cuios-shop/locket_cuios_stable/main/locket_cuios_looks_protected.sgmodule) và [bản JS thường](https://raw.githubusercontent.com/Cuios-shop/locket_cuios_stable/main/locket_cuios_looks.sgmodule). Module thử bật ba field `show_filter_button`, `sheet_enabled`, `allows_custom_filters` trong `camera_filter_config`, giữ nguyên danh sách filter và các thiết lập còn lại từ server. **Chưa xác nhận tạo ảnh trên iPhone.** Xem [căn cứ, giới hạn và cách kiểm tra](LOOKS.md).
+Đã sửa [module Looks Protected P1](https://raw.githubusercontent.com/Cuios-shop/locket_cuios_stable/main/locket_cuios_looks_protected.sgmodule) và [bản JS thường](https://raw.githubusercontent.com/Cuios-shop/locket_cuios_stable/main/locket_cuios_looks.sgmodule): giữ các mục gốc trong `overlay_items`/`overlay_dynamic_captions` trước, rồi thêm 94 ghi chú Cuios. Bản 4.0.4 đã thay toàn bộ hai danh sách, có thể làm mất mục mới nếu app đặt mục đó trong cùng danh sách. Khi thiếu catalogue hoặc không nhận diện được cấu trúc, giữ nguyên cả hai entry và không chèn ghi chú; ưu tiên giao diện gốc.
 
-Module stable/Protected thông thường không bật thử Looks. Chỉ bật một module Locket khi dùng; bản thử giữ cấu hình media, 94 ghi chú, 90 nền và khung Aura. Các link ghim commit cũ tiếp tục tải đúng bản cũ.
+Bản Looks không còn ép các cờ điều hướng/ghi chú hay `overlays_v2_config` sang giá trị cũ. Ba cờ filter thử nghiệm vẫn bật; không tự thêm ID filter. **Chưa xác nhận tạo ảnh trên iPhone.** Xem [căn cứ, giới hạn và cách kiểm tra](LOOKS.md).
+
+Có thêm [bản đối chiếu Looks Native Protected](https://raw.githubusercontent.com/Cuios-shop/locket_cuios_stable/main/locket_cuios_looks_native_protected.sgmodule): giữ nguyên các entry ghi chú/menu và khung server, không chèn 94 ghi chú, vẫn giữ cấu hình media và ba cờ filter. Dùng để so sánh trên máy nếu bản ghép vẫn không hiện Looks.
+
+Module stable/Protected thông thường không bật thử Looks và giữ hành vi thay catalogue cũ. Chỉ bật một module Locket khi dùng. Bản Looks ghép giữ cấu hình media, dữ liệu 94 ghi chú/90 nền và khung Aura; ghi chú chỉ được chèn khi có đủ hai danh sách nhận diện được. Các link ghim commit cũ tiếp tục tải đúng bản cũ.
 
 ## Chuyển sang Organization Cuios.shop
 
@@ -27,7 +31,7 @@ Giữ xử lý Gold, mic/âm thanh, camera, upload, cache và khung Aura của b
 | Quay video | 60 giây | Đã quay được 60 giây |
 | Nhập/upload video | 60 giây, 100 MiB = 104.857.600 bytes | App vẫn giới hạn khoảng 10 giây/6 MB |
 
-Các giá trị upload đã được đặt từ trước bản này, gồm camera_roll, cấu hình upload và các giới hạn lồng nhau. **Không thay logic video trong v4.0.4**. Kiểm thử hồi quy vẫn mô phỏng đầu vào 10s/6 MiB và xác nhận response cấu hình được đổi thành 60s/100 MiB.
+Các giá trị upload đã được đặt từ trước bản này, gồm camera_roll, cấu hình upload và các giới hạn lồng nhau. **Không thay logic video trong v4.0.5**. Kiểm thử hồi quy vẫn mô phỏng đầu vào 10s/6 MiB và xác nhận response cấu hình được đổi thành 60s/100 MiB.
 
 Giá trị cấu hình không chứng minh app hoặc máy chủ chấp nhận file dài/lớn. Nếu thực tế vẫn 10s/6 MB thì cần phân biệt app chưa activate, schema app không dùng các field này, hay giới hạn phía server; chưa đủ bằng chứng khẳng định máy chủ là nguyên nhân. Bản này không tuyên bố đã vượt được giới hạn upload thực tế.
 
@@ -76,7 +80,7 @@ npm run check
 npm test
 ```
 
-**54 test offline**, chạy trên runtime thường và Protected: hồi quy video 60s/100 MiB, mic flags, RevenueCat/Firebase/cache; 94 ghi chú; đủ 90 ảnh riêng với SHA-256 khớp, 12 phong cách và đa dạng trong mỗi nhóm; so sánh bốn mẫu bản quyền giống hệt v4.0.1, gồm hash ảnh brand. Kiểm tra engine ngoài phần styling, Looks tùy chọn và nhãn phiên bản giống engine được giữ lại. Các test Looks xác nhận chỉ ba field filter thay đổi, giữ catalogue/safety/giới hạn server, schema lỗi được bỏ qua, chẩn đoán không lưu prompt/ảnh/ID và không can thiệp endpoint tạo ảnh.
+**62 test offline**, chạy trên runtime thường và Protected: hồi quy video 60s/100 MiB, mic flags, RevenueCat/Firebase/cache; 94 ghi chú; đủ 90 ảnh riêng với SHA-256 khớp, 12 phong cách và đa dạng trong mỗi nhóm; so sánh bốn mẫu bản quyền giống hệt v4.0.1, gồm hash ảnh brand. Kiểm tra engine ngoài phần styling, Looks tùy chọn và nhãn phiên bản giống engine được giữ lại. Test tái hiện lỗi 4.0.4 xóa mục gốc, xác nhận bản mới giữ mục/metadata/type chưa biết, ghép lặp không trùng, bỏ qua cả cặp khi schema lạ hoặc thiếu entry, giữ nguyên cấu hình điều hướng, và bản Native không chèn ghi chú. Chẩn đoán không lưu prompt/ảnh/ID; không can thiệp endpoint tạo ảnh.
 
 Đã xem ảnh dựng thực tế để kiểm tra phối màu và chữ. Kiểm thử mã/ảnh không thay thế kiểm tra renderer hoặc upload trên iPhone.
 
