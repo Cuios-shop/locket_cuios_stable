@@ -1,5 +1,14 @@
 # Thay đổi
 
+## 4.0.2 — 90 nền riêng, giữ cấu hình video và bản quyền
+
+- Xác nhận upload đã có cấu hình 60s/100 MiB; giữ nguyên logic media/mic/cache. Giới hạn upload thực tế 10s/6 MB do người dùng báo chưa được vượt hoặc xác định nguyên nhân.
+- 90 PNG riêng cho 90 ghi chú thường, 12 phong cách trộn ngẫu nhiên có seed, khoảng 3,37 MiB. Nền là hiệu ứng thị giác tĩnh.
+- Giữ nguyên cả bốn caption bản quyền và ảnh brand; giữ câu chữ/emoji/ID của đủ 94 mẫu.
+- 43 test offline, gồm bảo toàn engine ngoài phần styling và SHA-256 các ảnh; chưa xác nhận renderer/upload trên iPhone.
+- Phát hành runtime hash mới; không sửa runtime, ảnh, khung cũ hoặc repo 10s/6 MiB.
+
+
 ## 4.0.1 — nhánh ghi chú từ bản 696fe10 được xác nhận
 
 - Dùng lại nguyên engine v4.0.0; chỉ catalogue và nhãn phiên bản/số lượng đổi. Không kế thừa thay đổi media của 4.1.0.

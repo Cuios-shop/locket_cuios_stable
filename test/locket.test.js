@@ -12,7 +12,7 @@ const moduleText = fs.readFileSync(path.join(root, "locket_cuios_stable.sgmodule
 const rc = "https://api.revenuecat.com/v1/subscribers/test-user";
 const firebase = "https://firebaseremoteconfig.googleapis.com/v1/projects/locket-4252a/namespaces/firebase:fetch";
 
-function run(options = {}) {
+function run(options = {}, runtime = source) {
   let calls = 0;
   let output;
   const logs = [];
@@ -36,7 +36,7 @@ function run(options = {}) {
         : options.body
     };
   }
-  vm.runInNewContext(source, context, { timeout: 1000 });
+  vm.runInNewContext(runtime, context, { timeout: 1000 });
   assert.equal(calls, 1, "$done must be called exactly once");
   return { output, logs, body: output.body ? JSON.parse(output.body) : undefined };
 }
@@ -284,7 +284,7 @@ test("diagnostics expose only fixed schema/flag classifications, never response 
   };
   const result = run({ url: firebase, payload: { entries } });
   const logs = result.logs.join("\n");
-  assert.ok(logs.includes("diag v4.0.1 input schema camera=object camera_roll=object"));
+  assert.ok(logs.includes("diag v4.0.2 input schema camera=object camera_roll=object"));
   assert.ok(logs.includes("overlay_items=array(1)"));
   assert.ok(logs.includes("video_sound_enabled=off microphone_enabled=on"));
   assert.ok(logs.includes("mh_mic_enabled_v16=other"));
@@ -312,7 +312,7 @@ test("widget event is opt in, preserves unknown metadata and keeps asset in this
   const patched = JSON.parse(result.body.entries.widget_frame_event);
   assert.equal(patched.uid, "cuios_gold_frame_v3");
   assert.deepEqual(patched.extra, { keep: true });
-  assert.equal(patched.url, "https://raw.githubusercontent.com/Cuongqtx11/locket_cuios_stable/main/assets/widget-gold.png?v=4.0.1");
+  assert.equal(patched.url, "https://raw.githubusercontent.com/Cuongqtx11/locket_cuios_stable/main/assets/widget-gold.png?v=4.0.2");
   assert.equal(result.body.entries.video_max_duration, "60.0");
   assert.ok(result.logs.some(line => line.includes("widget=gold-event-experimental")));
   const asset = fs.readFileSync(path.join(root, "assets/widget-gold.png"));
@@ -396,7 +396,7 @@ test("Firebase recognizes only Locket project IDs for mutation and observes othe
 test("Firebase ETag follows patched content, stays stable across repeat fetches and differs by theme", () => {
   const first = run({ url: firebase, payload: { state: "UPDATE", entries: { camera: '{"max_duration":5}' } }, responseHeaders: { etag: '"server-static"' } });
   const second = run({ url: firebase, payload: first.body, responseHeaders: { ETag: '"server-static"' } });
-  assert.match(first.output.headers.etag, /^"cuios-4\.0\.1-/);
+  assert.match(first.output.headers.etag, /^"cuios-4\.0\.2-/);
   assert.notEqual(first.output.headers.etag, '"server-static"');
   assert.equal(first.output.headers.etag, second.output.headers.etag);
   const gold = run({ url: firebase, payload: first.body, argument: "gold-frame" });
@@ -441,7 +441,7 @@ test("NO_CHANGE without complete entries is reported, never fabricated from old 
 test("local status proves runtime execution but never claims native features or activation were verified", () => {
   const store = memoryStore();
   const before = report(store);
-  assert.equal(before.runtime, "4.0.1");
+  assert.equal(before.runtime, "4.0.2");
   assert.deepEqual(before.observed, {});
   assert.equal(before.deviceFeaturesVerified, false);
   assert.equal(before.recipe.seconds, 60);
@@ -529,7 +529,7 @@ test("HTTPS self-check is local and records browser transport separately from ac
     assert.equal(rules.filter(rule => rule.type === "http-request" && rule.pattern.test(url)).length, 1);
     const result = run({ url, requestOnly: true, store });
     assert.equal(result.output.response.status, 200);
-    assert.ok(result.output.response.body.includes("Cuios · HTTPS check v4.0.1"));
+    assert.ok(result.output.response.body.includes("Cuios · HTTPS check v4.0.2"));
   }
   const state = report(store).observed;
   assert.equal(state.https_firebase.action, "https_hook_seen");
@@ -590,7 +590,7 @@ test("all caption backgrounds resolve to local PNG assets and include fallback c
     assert.ok(fs.existsSync(path.join(root, file)), file);
     uniqueAssets.add(file);
   }
-  assert.equal(uniqueAssets.size, 9);
+  assert.equal(uniqueAssets.size, 91);
   const catalogue = JSON.parse(fs.readFileSync(path.join(root, "content/captions.json"), "utf8"));
   assert.deepEqual(items.map(item => item.caption.text), catalogue.flatMap(group => group.items.map(item => item[1])));
 });
@@ -602,14 +602,59 @@ test("posted moments and profile APIs are never rewritten by the new catalogue o
   }
 });
 
-test("the working v4.0.0 engine is identical outside catalogue and release labels", () => {
+test("the working v4.0.0 engine is identical outside caption styling and release labels", () => {
   const previous = fs.readFileSync(path.join(root, "scripts/releases/locket-v4.0.0-fddb9e4d0469.js"), "utf8");
   function withoutCatalogue(text) {
-    return text.replace(/  \/\/ BEGIN GENERATED CAPTION CATALOGUE[\s\S]*?  \/\/ END GENERATED CAPTION CATALOGUE/, "// CATALOGUE");
+    return text.replace(/  \/\/ BEGIN GENERATED CAPTION CATALOGUE[\s\S]*?  \/\/ END GENERATED CAPTION CATALOGUE/, "// CATALOGUE")
+      .replace(/  function captionPatch\(entries\) \{[\s\S]*?(?=  function widgetPatch)/, "// CAPTION STYLING\n\n");
   }
   const normalized = withoutCatalogue(source)
-    .replaceAll("4.0.1", "4.0.0")
+    .replaceAll("4.0.2", "4.0.0")
     .replace("captions: 94", "captions: 54")
     .replace("· 94 ghi chú.", "· 54 ghi chú.");
   assert.equal(normalized, withoutCatalogue(previous));
+});
+
+test("the four branded caption objects remain exactly as in v4.0.1", () => {
+  const crypto = require("node:crypto");
+  assert.equal(crypto.createHash("sha256").update(fs.readFileSync(path.join(root, "assets/captions/brand.png"))).digest("hex"),
+    "3b70185c37114626ec36f2e82a4625d57264850ae28c6c19730d553299b9de59");
+  const previous = fs.readFileSync(path.join(root, "scripts/releases/locket-v4.0.1-dc3e621cce8f.js"), "utf8");
+  const options = { url: firebase, payload: { entries: {} } };
+  const before = JSON.parse(run(options, previous).body.entries.overlay_items);
+  const after = JSON.parse(run(options).body.entries.overlay_items);
+  assert.deepEqual(after[0], before[0]);
+  const unchangedContent = groups => groups.flatMap(group => group.items).map(item => {
+    const copy = structuredClone(item);
+    delete copy.caption.background;
+    return copy;
+  });
+  assert.deepEqual(unchangedContent(after), unchangedContent(before));
+});
+
+test("all 90 ordinary captions use unique published textures and diverse styles within each group", () => {
+  const crypto = require("node:crypto");
+  const manifest = JSON.parse(fs.readFileSync(path.join(root, "content/caption_backgrounds.json"), "utf8"));
+  const catalogue = JSON.parse(fs.readFileSync(path.join(root, "content/captions.json"), "utf8"));
+  const entries = run({ url: firebase, payload: { entries: {} } }).body.entries;
+  const items = JSON.parse(entries.overlay_items).slice(1).flatMap(group => group.items);
+  assert.equal(manifest.items.length, 90);
+  assert.equal(new Set(manifest.items.map(item => item.image)).size, 90);
+  assert.equal(new Set(manifest.items.map(item => item.sha256)).size, 90);
+  assert.equal(new Set(manifest.items.map(item => item.style)).size, 12);
+  assert.ok(new Set(manifest.items.map(item => JSON.stringify(item.colors))).size >= 40);
+  for (const group of catalogue.slice(1)) {
+    assert.ok(new Set(group.items.map(item => item[3].style)).size >= 3, group.section);
+  }
+  for (const item of manifest.items) {
+    const asset = fs.readFileSync(path.join(root, "assets", item.image));
+    assert.equal(crypto.createHash("sha256").update(asset).digest("hex"), item.sha256);
+    assert.equal(asset.subarray(1, 4).toString(), "PNG");
+    assert.equal(asset.readUInt32BE(16), 768);
+    assert.equal(asset.readUInt32BE(20), 256);
+    const caption = items.find(caption => caption.overlay_id === "caption:" + item.id);
+    assert.ok(caption.caption.background.image.data.endsWith("/assets/" + item.image));
+    assert.deepEqual(caption.caption.background.colors, item.colors);
+  }
+  assert.ok(manifest.items.reduce((bytes, item) => bytes + item.bytes, 0) < 5 * 1024 * 1024);
 });

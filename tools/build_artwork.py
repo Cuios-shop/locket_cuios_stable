@@ -95,10 +95,12 @@ cards = [(group,index,item) for group in catalogue for index,item in enumerate(g
 columns, width, height = 3, 480, 108
 sheet = Image.new("RGB",(columns*width+48,math.ceil(len(cards)/columns)*height+100),"#10131D")
 draw = ImageDraw.Draw(sheet)
-draw.text((24,18),f"Cuios • {len(cards)} ghi chú • Thêm 50 câu mới",font=title,fill="#FFFFFF")
+draw.text((24,18),f"Cuios • {len(cards)} ghi chú • 90 nền riêng, 12 phong cách",font=title,fill="#FFFFFF")
 for n,(group,index,item) in enumerate(cards):
     name = "brand" if group["id"] == "brand" else group["background"]+"_"+str(index%2+1)
-    card = Image.open(BACKGROUNDS/f"{name}.png").resize((width-16,height-14),Image.Resampling.LANCZOS)
+    decoration = item[3] if group["id"] != "brand" and len(item) > 3 else None
+    image_path = ASSETS/decoration["image"] if decoration else BACKGROUNDS/f"{name}.png"
+    card = Image.open(image_path).convert("RGB").resize((width-16,height-14),Image.Resampling.LANCZOS)
     x,y = 24+(n%columns)*width,76+(n//columns)*height
     sheet.paste(card,(x,y))
     draw.text((x+16,y+10),f"{n+1:02d}  {group['section']}",font=small,fill="#E3DCED")

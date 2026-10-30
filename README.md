@@ -1,41 +1,55 @@
-# Cuios · Bản hoạt động tốt + 94 ghi chú
+# Cuios v4.0.2 · 94 ghi chú, 90 nền riêng
 
-Bản **4.0.1** kế thừa đúng [commit 696fe10](https://github.com/Cuongqtx11/locket_cuios_stable/tree/696fe103b34aae9ad41ed920685deb8a7808997f) mà người dùng xác nhận có đầy đủ chức năng sau khi cài lại. Chỉ đổi danh mục ghi chú và nhãn phiên bản; luồng xử lý Gold, mic/âm thanh, video, cache, asset và khung Aura giữ nguyên theo bản đó.
+**Repo:** [Cuongqtx11/locket_cuios_stable](https://github.com/Cuongqtx11/locket_cuios_stable).
 
-Cấu hình vẫn là **60s/100 MiB** như bản được xác nhận. Người dùng báo **video từ thư viện vẫn chỉ đăng được 10s**; bản này không thay đổi giới hạn đó và không khẳng định server chấp nhận video dài một phút hoặc file 100 MiB.
+Giữ xử lý Gold, mic/âm thanh, camera, upload, cache và khung Aura của bản `696fe10` mà người dùng xác nhận hoạt động. Bản này thay phần chọn nền của 90 ghi chú thường. Bốn ghi chú bản quyền giữ nguyên cả nội dung, icon, màu nền và URL ảnh từ v4.0.1.
 
-## Hai repo được giữ
+## Video: đã có cấu hình 60s/100 MiB
 
-| Repo | Nội dung |
-| --- | --- |
-| [locket_cuios_stable](https://github.com/Cuongqtx11/locket_cuios_stable) | Engine từ 696fe10, bộ 94 ghi chú mới |
-| [locket_cuios_10s_6mb](https://github.com/Cuongqtx11/locket_cuios_10s_6mb) | Bản v4.1.0 riêng: mục tiêu quay 60s, nhập 10s/6 MiB, runtime được giữ nguyên |
+| Chức năng | Cấu hình trong module | Quan sát từ người dùng |
+| --- | --- | --- |
+| Quay video | 60 giây | Đã quay được 60 giây |
+| Nhập/upload video | 60 giây, 100 MiB = 104.857.600 bytes | App vẫn giới hạn khoảng 10 giây/6 MB |
 
-Các link ghim commit `696fe10` và `4b3ebce` trong repo này vẫn giữ nội dung cũ. Artifact JS đã phát hành được giữ để các module đó tiếp tục tải đúng file. Nội dung ghi chú mới nằm ở bản 4.0.1, không sửa đè link cũ.
+Các giá trị upload đã được đặt từ trước bản này, gồm camera_roll, cấu hình upload và các giới hạn lồng nhau. **Không thay logic video trong v4.0.2**, không chèn thêm cờ phỏng đoán. Kiểm thử hồi quy vẫn mô phỏng đầu vào 10s/6 MiB và xác nhận response cấu hình được đổi thành 60s/100 MiB.
 
-## Cài bộ 94 ghi chú
+Giá trị cấu hình không chứng minh app hoặc máy chủ chấp nhận file dài/lớn. Nếu thực tế vẫn 10s/6 MB thì cần phân biệt app chưa activate, schema app không dùng các field này, hay giới hạn phía server; chưa đủ bằng chứng khẳng định máy chủ là nguyên nhân. Bản này không tuyên bố đã vượt được giới hạn upload thực tế.
 
-Chỉ bật một module Locket trong cấu hình Shadowrocket đang dùng:
+## 90 nền mới cho 90 ghi chú thường
+
+Mỗi ghi chú thường có **một PNG riêng**, không còn dùng chung hai ảnh theo nhóm. Tổng 90 ảnh, **768 × 256 px**, khoảng **3,37 MiB** cho toàn bộ bộ nền. Mỗi nhóm có nhiều phong cách và bảng màu khác nhau.
+
+12 phong cách: cực quang, hologram ánh kim, neon, galaxy, lăng kính, vân lỏng, lụa ánh sáng, đốm lửa, sóng biển, hoa phát sáng, hoàng hôn và lưới cyber. Có glow, hạt sao, vân sáng, tia màu, khối kính và vùng tối mềm để giữ chữ trắng dễ đọc.
+
+Màu và họa tiết được trộn ngẫu nhiên khi dựng bản phát hành; mỗi ghi chú giữ nền đã chọn trong cùng phiên bản để tránh nhảy nền hoặc thay ETag liên tục. Nền là **PNG có hiệu ứng thị giác tĩnh**, không thêm chuyển động native vào app.
+
+Bốn mẫu đầu giữ nguyên:
+
+1. **t.me/tomqtx1111**
+2. **Bản quyền Cuios**
+3. **Cưn🍤**
+4. **tom11th5**
+
+Vẫn có đủ **94 ghi chú**, giữ nguyên câu chữ, emoji và ID của bản 4.0.1. Không khôi phục nhóm Dịu dàng và không sửa ghi chú đã đăng.
+
+![Xem toàn bộ 94 ghi chú và nền](assets/captions-preview.jpg)
+
+## Cài module mới
 
 ```text
 https://raw.githubusercontent.com/Cuongqtx11/locket_cuios_stable/main/locket_cuios_stable.sgmodule
 ```
 
-Bật HTTPS Decryption/MITM và chứng chỉ CA đã tin cậy; kết nối Shadowrocket trước khi mở Locket. Module chính dùng đúng tham số `aura-frame` của bản được xác nhận. Tất cả rule dùng cùng runtime mới có hash trong tên. Bản `locket_cuios_no_widget.sgmodule` chỉ giữ khung server như nhánh cũ, không cài chồng.
+Chỉ bật một module Locket trong cấu hình Shadowrocket đang dùng. Giữ HTTPS Decryption/MITM và CA đã tin cậy; kết nối Shadowrocket trước khi mở Locket. Module chính vẫn dùng `aura-frame`; bản `locket_cuios_no_widget.sgmodule` giữ khung server. Cả hai cùng có bộ nền mới.
 
-## Ghi chú đã đổi
+Mọi rule dùng cùng runtime có hash trong tên. Link ghim commit cũ tiếp tục giữ phiên bản cũ, nên cần nhập link bản mới để nhận nền mới. App còn phải fetch/activate cấu hình; chỉ đổi URL module không xác nhận việc đó đã xảy ra.
 
-- Dòng đầu: **t.me/tomqtx1111**. Ba mẫu thương hiệu còn lại giữ **Bản quyền Cuios**, **Cưn🍤**, **tom11th5**.
-- Bỏ toàn bộ nhóm **Dịu dàng** gồm 10 mẫu.
-- Thêm **50 câu mới**: 20 trêu đùa, 15 hài hước, 5 bạn bè, 5 đời thường và 5 tự tin/yêu đời.
-- Tổng **94 mẫu**, ưu tiên nhóm Trêu đùa và Hài hước ngay sau thương hiệu. Những nhóm Tình yêu, Vui vẻ, Cảm xúc vẫn có mặt.
-- Giữ cấu trúc caption, đăng ký ID, nền ảnh/màu và renderer của engine được xác nhận. Nhóm mới dùng lại các nền có sẵn; không thay URL hoặc dữ liệu PNG của nền và khung widget.
+## Hai repo được giữ
 
-Một số câu mới: “Nhìn gì, thích tớ à?”, “Ảnh miễn phí, nhớ tớ tính tiền”, “Ví mỏng, tâm hồn phú hộ”, “Dậy rồi, hồn chưa tới”, “Bạn thân, nghiệp ai nấy giữ”.
+- [locket_cuios_stable](https://github.com/Cuongqtx11/locket_cuios_stable): bản này, cấu hình 60s/100 MiB và 94 ghi chú.
+- [locket_cuios_10s_6mb](https://github.com/Cuongqtx11/locket_cuios_10s_6mb): bản 4.1.0 riêng, quay 60s và nhập 10s/6 MiB; không chỉnh sửa trong lần cập nhật này.
 
-![94 mẫu ghi chú](assets/captions-preview.jpg)
-
-Chỉ thay danh sách trong picker; các ghi chú đã đăng không bị sửa. Việc hiển thị bản mới vẫn phụ thuộc app fetch/activate cấu hình; không cần tiếp tục gỡ app nếu bản hiện tại đã hoạt động tốt.
+Runtime đã phát hành và các nền/khung cũ được giữ nguyên để các link ghim commit trước tiếp tục hoạt động.
 
 ## Kiểm tra và dựng lại
 
@@ -46,14 +60,19 @@ npm run check
 npm test
 ```
 
-**41 test offline**: giữ các kiểm tra media, mic flags, cache/ETag, RevenueCat/Firebase, schema và báo cáo của v4.0; cập nhật kiểm tra danh mục 94 mẫu. Một kiểm tra đối chiếu toàn bộ JS xác nhận ngoài catalogue và nhãn phiên bản/số lượng, engine giống từng byte với runtime v4.0.0 đã được giữ lại.
+**43 test offline**: hồi quy video 60s/100 MiB, mic flags, RevenueCat/Firebase/cache; 94 ghi chú; đủ 90 ảnh riêng với SHA-256 khớp, 12 phong cách và đa dạng trong mỗi nhóm; so sánh bốn mẫu bản quyền giống hệt v4.0.1, gồm hash ảnh brand; kiểm tra engine ngoài phần styling/nhãn phiên bản giống engine được giữ lại.
 
-Kiểm thử mã không thay thế xác nhận các chức năng trên iPhone; nhận định hoạt động tốt của bản gốc dựa trên báo cáo người dùng. Các tài liệu v4.0/v4.1 trong `docs` là phân tích lịch sử. Repo 10s/6 MiB chứa bản 4.1.0 đầy đủ riêng.
+Đã xem ảnh dựng thực tế để kiểm tra phối màu và chữ. Kiểm thử mã/ảnh không thay thế kiểm tra renderer hoặc upload trên iPhone.
 
-Muốn dựng lại ảnh xem trước mà không thay PNG nền/khung:
+Dựng bộ nền và ảnh xem trước bằng Pillow/NumPy ở bước authoring:
 
 ```bash
+python3 -m pip install -r tools/requirements-artwork.txt
+python3 tools/build_caption_backgrounds.py
+python3 tools/build_script.py
+python3 tools/build_modules.py
 python3 tools/build_artwork.py --preview-only
+npm test
 ```
 
-Artwork chỉ cần Pillow ở bước authoring. Runtime không có dependency hoặc request ra ngoài; danh mục được nhúng trong file JS. Mã kế thừa theo MIT.
+`content/caption_backgrounds.json` ghi style, ảnh, màu dự phòng, SHA-256 và dung lượng. Ảnh mới có thư mục phiên bản và tên chứa hash, không sửa đè ảnh cũ. Đổi thiết kế đã phát hành cần tăng phiên bản. Runtime không dùng NumPy/Pillow, không chạy ngẫu nhiên hoặc gọi API tạo ảnh trên điện thoại. Mã kế thừa theo MIT.

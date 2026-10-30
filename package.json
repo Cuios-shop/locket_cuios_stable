@@ -1,8 +1,8 @@
 {
   "name": "locket_cuios_stable",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "private": true,
-  "description": "Bản kế thừa 696fe10 được người dùng xác nhận: cấu hình 60s/100 MiB, 94 ghi chú Cuios",
+  "description": "Cuios: giữ cấu hình 60s/100 MiB, 94 ghi chú với 90 nền riêng và bốn mẫu bản quyền giữ nguyên",
   "scripts": {
     "check": "node --check scripts/locket.js",
     "test": "node --test"
